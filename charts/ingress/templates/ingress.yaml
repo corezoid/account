@@ -1,0 +1,28 @@
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: sa-{{ .Values.global.env | default "prod" }}-frontend
+  labels:
+    app: {{ .Values.global.product }}
+    tier: {{ .Values.appName }}
+    env: {{ .Values.global.env | default "prod" }}
+  annotations:
+    {{- include "sa.ingressAnnotations" . | nindent 4 }}
+spec:
+  rules:
+    - host: {{ .Values.global.sa.subDomain }}.{{ .Values.global.domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: singlespace-service
+                port:
+                  number: {{ .Values.global.sa.singlespace.port }}

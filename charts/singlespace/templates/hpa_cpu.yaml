@@ -1,0 +1,21 @@
+{{- if .Values.global.sa.singlespace.autoscaling }}
+{{- if .Values.global.sa.singlespace.autoscaling.enabled }}
+{{- $autoscaling := .Values.global.sa.singlespace.autoscaling }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.appName }}-cpu-autoscale
+  labels:
+{{- include "sa-singlespace.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.appName }}-deployment
+  minReplicas: {{ $autoscaling.minReplicas }}
+  maxReplicas: {{ $autoscaling.maxReplicas }}
+  {{- if $autoscaling.targetCPUUtilizationPercentage }}
+  targetCPUUtilizationPercentage: {{ $autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+{{- end }}
+{{- end }}

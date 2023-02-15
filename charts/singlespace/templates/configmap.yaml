@@ -1,0 +1,37 @@
+{{- $dbSecretData := .Values.global.db.secret.data }}
+{{- $redisSecretData := .Values.global.redis.secret.data }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-configmap
+  labels:
+{{- include "sa-singlespace.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    env: {{ .Values.global.env | default "prod" }}
+    domain: {{ .Values.global.sa.subDomain }}.{{ .Values.global.domain }}
+    listen:
+      type: port
+      bind_ip: 0.0.0.0
+      port: {{ .Values.global.sa.singlespace.port }}
+    psql:
+      host: {{ $dbSecretData.dbhost }}
+      port: {{ $dbSecretData.dbport }}
+      user: {{ $dbSecretData.dbuser }}
+      password: {{ $dbSecretData.dbpwd }}
+      database: accounts
+    redis:
+      host: {{ $redisSecretData.host }}
+      port: {{ $redisSecretData.port | default "6379" }}
+      password: {{ $redisSecretData.password | quote }}
+      database: 11
+    {{- if .Values.global.sa.singlespace.config }}
+    {{- if .Values.global.sa.singlespace.config.keycloak }}
+    keycloak:
+      url: {{ .Values.global.sa.singlespace.config.keycloak.url }}
+      realm: {{ .Values.global.sa.singlespace.config.keycloak.realm }}
+      client: {{ .Values.global.sa.singlespace.config.keycloak.client }}
+      sync: {{ .Values.global.sa.singlespace.config.keycloak.sync }}
+      separator: {{ .Values.global.sa.singlespace.config.keycloak.separator }}
+    {{- end }}
+    {{- end }}

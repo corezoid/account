@@ -1,0 +1,20 @@
+{{- define "sa-singlespace.resources" }}
+{{- if .Values.global.sa.singlespace.resources }}
+{{- $resources := .Values.global.sa.singlespace.resources }}
+resources:
+  limits:
+    cpu: {{ $resources.limits.cpu | quote }}
+    memory: {{ $resources.limits.memory | quote }}
+  requests:
+    cpu: {{ $resources.requests.cpu | quote }}
+    memory: {{ $resources.requests.memory | quote }}
+{{- else }}
+resources:
+  limits:
+    cpu: 200m
+    memory: 400Mi
+  requests:
+    cpu: 50m
+    memory: 200Mi
+{{- end }}
+{{- end }}

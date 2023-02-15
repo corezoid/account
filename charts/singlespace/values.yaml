@@ -1,0 +1,5 @@
+appName: singlespace
+
+image:
+  registry: docker-hub.middleware.biz
+  repository: sa-singlespace

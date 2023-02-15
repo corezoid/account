@@ -1,0 +1,105 @@
+# Default values
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+
+  # second level domain only! / core domain (example: control.local)
+  domain: "control.local"
+
+  product: "simulator"
+
+  env: "prod"
+
+  #######  PostgreSQL  ########
+  ## Supported version  from 13.5.*
+  db:
+    image: "postgres:13.7-alpine"
+    imagePullPolicy: "IfNotPresent"
+    # if internal true - create and use internal postgres container
+    # if internal false - enable external db, like aws rds
+    internal: false
+    ## secret configuration for postgresql
+    create: true
+    ## pvc name
+    persistantVolumeClaimName: "postgresql-pvc-sa"
+    secret:
+      ## true - secret will be created automaticaly with provided values
+      ## false - secret should be created manualy
+      create: true
+      ## secret name
+      name: "postgresql-secret"
+      ## for init db and roles dbsuperuser and dbuser cannot be changed (because used as plain text in sql)
+      dbsuperuser: ""
+      ## password - for dbsuperuser
+      dbsuperuserpwd: ""
+      data:
+        dbhost: "SINGLE_ACCOUNT_DB_HOST"   # если internal: true, тогда этот хост!!!
+        dbport: "SINGLE_ACCOUNT_DB_PORT"
+        dbuser: "SINGLE_ACCOUNT_DB_USERNAME"
+        dbpwd: "SINGLE_ACCOUNT_DB_PASSWORD"
+
+  ## NO CLUSTER Mode!
+  redis:
+    # if internal true - create and use internal k8s redis container
+    # if internal false - enable external redis, like aws elasticache (Engine Version Compatibility: 3.2.10)
+    internal: false
+    ## pvc name if it already exist or was created manualy
+    persistantVolumeClaimName: "redis-pvc-sa"
+    ## secret configuration for redis
+    sentinel:
+      enable: false
+      master_name: "mymaster"
+    secret:
+      ## true - secret will be created automatically with provided values
+      ## false - secret should be created manually
+      create: true
+      name: "redis-secret"
+      # you can specify different servers for redis for cache and PubSub  - or specify the same server in variables
+      data:
+        host: "REDIS_HOST"
+        port: "6379"
+        password: ""
+
+  imageRegistry: "docker-hub.middleware.biz"
+  repotype: "public"
+
+  # imageInit:
+  #   repository: docker-hub.middleware.biz/hub.docker.com/library/alpine
+  #   pullPolicy: IfNotPresent
+  #   tag: "3.13"
+
+  # imagePullSecrets:
+  #   name: registry-secret
+
+  deploymentStrategy:
+    type: RollingUpdate
+
+  # networkPolicy:
+  #   enabled: false
+  #   monitoring:
+  #     # Selector for prometheus namespace
+  #     namespaceSelector:
+  #       name: monitoring
+  #     # Selector for prometheus deploymnets
+  #     podSelector:
+  #       release: prometheus-stack
+
+  # nameOverride: ""
+  # fullnameOverride: ""
+
+  sa:
+    singlespace:
+      port: 8080
+      autoscaling:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 10
+        targetCPUUtilizationPercentage: 80
+        targetMemoryUtilizationPercentage: 80
+      resources:
+        limits:
+          cpu: 400m
+          memory: 500Mi
+        requests:
+          cpu: 100m
+          memory: 200Mi

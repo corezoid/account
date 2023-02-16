@@ -10,7 +10,7 @@ ALTER DATABASE accounts OWNER TO application_user ;
 
 where `application_user` is a current user for `single-account` application
 
-Also neew change owner for all `table`, `sequences` and `views` in `accounts` database to `application_user`.
+Also need change owner for all `table`, `sequences` and `views` in `accounts` database to `application_user`.
 
 Here an example how to do this:
 

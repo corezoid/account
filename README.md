@@ -39,9 +39,18 @@ location ~ ^/(client|face|webhook) {
 	proxy_ignore_headers   Set-Cookie;
 	proxy_intercept_errors on;
 	proxy_buffering        off;
-	add_header             Cache-Control max-age=31536000;
 	proxy_pass             https://AWS_NLB_WITH_SINGLESPACE_ENDPOINT;
 }
+```
+
+## Single-account appication
+
+Add block above in `single_account.config` file inside block `{single_account, []}`:
+
+```
+{single_space, [
+  {disabled, false}
+]},
 ```
 
 # Install

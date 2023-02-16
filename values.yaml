@@ -88,6 +88,8 @@ global:
   # fullnameOverride: ""
 
   sa:
+    # Sub-domain for single-account domain
+    subDomain: "account"
     singlespace:
       port: 8080
       autoscaling:

@@ -34,4 +34,10 @@ data:
       sync: {{ .Values.global.sa.singlespace.config.keycloak.sync }}
       separator: {{ .Values.global.sa.singlespace.config.keycloak.separator }}
     {{- end }}
+    {{- if .Values.global.sa.singlespace.config.webhooks }}
+    {{- if .Values.global.sa.singlespace.config.webhooks.on_invite }}
+    webhooks:
+      on_invite: {{ .Values.global.sa.singlespace.config.webhooks.on_invite }}
+    {{- end }}
+    {{- end }}
     {{- end }}

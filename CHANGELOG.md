@@ -10,3 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Major changes
 
 - Init chart
+
+## [0.0.8] - 2023-03-29
+
+### Major changes
+
+- New chart release
+- New application version

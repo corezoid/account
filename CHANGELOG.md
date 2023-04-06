@@ -7,13 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.1] - 2023-01-13
 
-### Major changes
+### Helm changes
 
 - Init chart
 
 ## [0.0.8] - 2023-03-29
 
-### Major changes
+### Helm changes
 
 - New chart release
 - New application version
+
+## [0.0.9] - 2023-04-06
+
+### Helm changes
+
+- New chart release
+- New application version
+	singlespace - 2.5.0
+
+#### Improvements
+
+- Draft implementation of webhooks.
+- New config parameter: tls.insecure_skip_verify - skips certificate validation in http requests.
+
+#### Feature
+
+- Initiate changelog file

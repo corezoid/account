@@ -10,6 +10,9 @@ data:
   config.yml: |
     env: {{ .Values.global.env | default "prod" }}
     domain: {{ .Values.global.sa.subDomain }}.{{ .Values.global.domain }}
+    {{- with .Values.global.sa.singlespace.config.secret }}
+    secret: {{ . }}
+    {{- end }}
     listen:
       type: port
       bind_ip: 0.0.0.0
@@ -25,19 +28,23 @@ data:
       port: {{ $redisSecretData.port | default "6379" }}
       password: {{ $redisSecretData.password | quote }}
       database: 11
-    {{- if .Values.global.sa.singlespace.config }}
-    {{- if .Values.global.sa.singlespace.config.keycloak }}
+    {{- if .Values.global.sa.tls_skip_verify }}
+    tls:
+      insecure_skip_verify: true
+    {{- end }}
+    {{- with .Values.global.sa.singlespace.config }}
+      {{- with .keycloak }}
     keycloak:
-      url: {{ .Values.global.sa.singlespace.config.keycloak.url }}
-      realm: {{ .Values.global.sa.singlespace.config.keycloak.realm }}
-      client: {{ .Values.global.sa.singlespace.config.keycloak.client }}
-      sync: {{ .Values.global.sa.singlespace.config.keycloak.sync }}
-      separator: {{ .Values.global.sa.singlespace.config.keycloak.separator }}
-    {{- end }}
-    {{- if .Values.global.sa.singlespace.config.webhooks }}
-    {{- if .Values.global.sa.singlespace.config.webhooks.on_invite }}
+      url: {{ .url }}
+      realm: {{ .realm }}
+      client: {{ .client }}
+      sync: {{ .sync }}
+      separator: {{ .separator }}
+      {{- end }}
+      {{- with .webhooks }}
+        {{- with .on_invite }}
     webhooks:
-      on_invite: {{ .Values.global.sa.singlespace.config.webhooks.on_invite }}
-    {{- end }}
-    {{- end }}
+      on_invite: {{ . }}
+        {{- end }}
+      {{- end }}
     {{- end }}

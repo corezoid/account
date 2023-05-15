@@ -92,6 +92,9 @@ global:
     subDomain: "account"
     singlespace:
       port: 8080
+      config:
+        # Must be same as admin_bearer_token_secret in single_account.config file
+        secret: SECRET
       autoscaling:
         enabled: true
         minReplicas: 2

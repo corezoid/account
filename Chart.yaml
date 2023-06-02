@@ -3,10 +3,10 @@ name: singlespace
 description: A Helm chart for SingleSpace
 icon: https://account.corezoid.com/static/logo.svg
 type: application
-version: 0.0.13
-appVersion: 2.10.0
+version: 0.0.14
+appVersion: 2.11.0
 dependencies:
   - name: singlespace
-    version: 0.0.13
+    version: 0.0.14
   - name: frontend
     version: 0.1.0

@@ -6,10 +6,3 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
     more_set_headers "Cache-Control: no-store";
     expires 0;
 {{- end }}
-
-{{/*
-Define postgres secret name
-*/}}
-{{- define "postgres.secretName" -}}
-{{ .Release.Name }}-{{ .Values.global.db.secret.name }}
-{{- end }}

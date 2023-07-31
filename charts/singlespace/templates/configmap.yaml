@@ -13,6 +13,11 @@ data:
     {{- with .Values.global.sa.singlespace.config.secret }}
     secret: {{ . }}
     {{- end }}
+    {{- if .Values.global.sa.singlespace.config.admin_workspace }}
+    admin_workspace: {{ .Values.global.sa.singlespace.config.admin_workspace }}
+    {{- end }}
+    modules:
+      license: {{ .Values.global.sa.singlespace.config.modules.license | default false }}
     listen:
       type: port
       bind_ip: 0.0.0.0
@@ -22,12 +27,18 @@ data:
       port: {{ $dbSecretData.dbport }}
       user: {{ $dbSecretData.dbuser }}
       password: {{ $dbSecretData.dbpwd }}
-      database: accounts
+      database: {{ .Values.global.sa.singlespace.config.accounts_db | default "accounts" }}
+    license_psql:
+      host: {{ $dbSecretData.dbhost }}
+      port: {{ $dbSecretData.dbport }}
+      user: {{ $dbSecretData.dbuser }}
+      password: {{ $dbSecretData.dbpwd }}
+      database: {{ .Values.global.sa.singlespace.config.license_db | default "settings" }}
     redis:
       host: {{ $redisSecretData.host }}
       port: {{ $redisSecretData.port | default "6379" }}
       password: {{ $redisSecretData.password | quote }}
-      database: 11
+      database: {{ $redisSecretData.database | default "11" }}
     {{- if .Values.global.sa.tls_skip_verify }}
     tls:
       insecure_skip_verify: true

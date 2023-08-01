@@ -16,8 +16,10 @@ data:
     {{- if .Values.global.sa.singlespace.config.admin_workspace }}
     admin_workspace: {{ .Values.global.sa.singlespace.config.admin_workspace }}
     {{- end }}
+    {{- if .Values.global.sa.singlespace.config.modules }}
     modules:
       license: {{ .Values.global.sa.singlespace.config.modules.license | default false }}
+    {{- end }}
     listen:
       type: port
       bind_ip: 0.0.0.0

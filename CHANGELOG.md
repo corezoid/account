@@ -9,8 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Chart 0.0.17 [SingleSpace 2.14.2] - 2023-08-19
 ### Helm changes
 - New applications versions:
-    singlespace - 2.14.2
+    singlespace - 2.15.1
+    ingress - 0.1.0
 
+- Add `Role`, `RoleBinding` and `ServiceAccount` for singlespace appliction
+- Add new block for `serviceAccount`
+
+```
+      # Specifies whether a service account should be created
+      serviceAccount:
+        create: false
+        # You can provide your serviceAccount name to use, also set create to false
+        # name: ""
+        annotations: {}
+        # annotations:
+        # ## Enable if EKS IAM for SA is used
+        #   eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-role
+```
 
 ## Chart 0.0.16 [SingleSpace 2.14.0] - 2023-07-25
 ### Helm changes

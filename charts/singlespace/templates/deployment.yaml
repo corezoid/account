@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
   labels:
-{{- include "sa-singlespace.labels" . | nindent 4 }}
+    {{- include "sa-singlespace.labels" . | nindent 4 }}
 spec:
 {{- if .Values.global.sa.singlespace.autoscaling }}
 {{- if .Values.global.sa.singlespace.autoscaling.enabled }}
@@ -12,7 +12,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-{{- include "sa-singlespace.labels" . | nindent 6 }}
+      {{- include "sa-singlespace.labels" . | nindent 6 }}
 {{- with .Values.global.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
@@ -27,13 +27,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
-{{- include "sa-singlespace.labels" . | nindent 8 }}
+        {{- include "sa-singlespace.labels" . | nindent 8 }}
     spec:
-  {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq .Values.global.repotype "public") }}
       imagePullSecrets:
         - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
-  {{- end }}
-      serviceAccountName: ""
+      {{- end }}
+      serviceAccountName: {{- include "sa-singlespace.serviceAccount" . | nindent 8 }}
       securityContext:
         {{- toYaml .Values.global.sa.podSecurityContext | nindent 8 }}
       containers:

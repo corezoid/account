@@ -3,4 +3,4 @@ name: singlespace
 description: A Helm chart for SingleSpace
 type: application
 version: 0.0.17
-appVersion: 2.14.2
+appVersion: 2.15.1

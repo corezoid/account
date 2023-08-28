@@ -61,3 +61,15 @@ livenessProbe:
   successThreshold: 1
   failureThreshold: 3
 {{- end }}
+
+{{- define "sa-singlespace.serviceAccount" -}}
+{{- if .Values.global.sa.singlespace.serviceAccount }}
+{{- if .Values.global.sa.singlespace.serviceAccount.create }}
+{{ .Values.appName }}-serviceaccount
+{{- else if .Values.global.sa.singlespace.serviceAccount.name }}
+{{ .Values.global.sa.singlespace.serviceAccount.name }}
+{{- else }}
+""
+{{- end }}
+{{- end }}
+{{- end }}

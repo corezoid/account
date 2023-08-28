@@ -108,3 +108,12 @@ global:
         requests:
           cpu: 100m
           memory: 200Mi
+      # Specifies whether a service account should be created
+      serviceAccount:
+        create: false
+        # You can provide your serviceAccount name to use, also set create to false
+        # name: ""
+        annotations: {}
+        # annotations:
+        # ## Enable if EKS IAM for SA is used
+        #   eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-role

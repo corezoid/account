@@ -12,9 +12,11 @@ data:
     url: {{ .Values.global.account.protocol | default "https://" }}{{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
     webhook:
       url: {{ .Values.global.account.webhook.url }}
-    {{- if .Values.global.account.webhook.tls.insecureSkipVerify }}
+    {{- if .Values.global.account.webhook.tls }}
+      {{- if .Values.global.account.webhook.tls.insecureSkipVerify }}
       tls:
         insecure_skip_verify: true
+      {{- end }}
     {{- end }}
     secret: {{ .Values.global.account.secret }}
     listen:

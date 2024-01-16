@@ -12,6 +12,10 @@ data:
     url: {{ .Values.global.account.protocol | default "https://" }}{{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
     webhook:
       url: {{ .Values.global.account.webhook.url }}
+    {{- if .Values.global.account.webhook.tls.insecureSkipVerify }}
+      tls:
+        insecure_skip_verify: true
+    {{- end }}
     secret: {{ .Values.global.account.secret }}
     listen:
       type: port
@@ -34,8 +38,4 @@ data:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DB}
-    {{- if .Values.global.account.tls_skip_verify }}
-    tls:
-      insecure_skip_verify: true
-    {{- end }}
 {{ $auth_config.config | toYaml | trim | indent 4 }}

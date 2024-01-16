@@ -1,0 +1,14 @@
+{{- define "account.frontend.resources" }}
+{{- if .Values.global.account.frontend.resources }}
+{{- $resources := .Values.global.account.frontend.resources }}
+resources:
+{{ $resources | toYaml | trim | indent 4 }}
+{{- else }}
+resources:
+  limits:
+    memory: 400Mi
+  requests:
+    cpu: 50m
+    memory: 200Mi
+{{- end }}
+{{- end }}

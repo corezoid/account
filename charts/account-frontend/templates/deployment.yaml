@@ -1,0 +1,87 @@
+{{- if eq .Values.global.account.enabled true }}
+{{- $auth_data := .Values.global.account.frontend }}
+{{- $app_name := (include "module.frontend.name" . ) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "account.frontend.deployment.name" . }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.global.account.frontend.autoscaling.enabled }}
+  replicas: {{ .Values.global.account.frontend.autoscaling.minReplicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "account.frontend.labels" . | nindent 6 }}
+{{- with .Values.global.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "account.frontend.labels" . | nindent 8 }}
+    spec:
+      {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
+      {{- end }}
+      serviceAccountName: {{- include "account.frontend.serviceaccount.name" . | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.global.account.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "module.frontend.name" . }}
+          image: {{ include "account.frontend.imageUrl" . | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: {{ include "account.frontend.portHttpName" . }}
+              containerPort: {{ include "account.frontend.portNumber" . }}
+              protocol: {{ include "account.frontend.portProtocol" . }}
+          resources:
+            {{- toYaml .Values.global.account.frontend.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-nginx
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: config-site
+              mountPath: /etc/nginx/conf.d/{{ .Values.appName }}.conf
+              subPath: {{ .Values.appName }}.conf
+            {{- if .Values.global.account.persistantVolumeClaimCreate }}
+            - name: {{ .Values.appName }}-claim
+              mountPath: {{ .Values.global.account.persistantVolumeClaimShareDir }}
+            {{- end }}
+            {{- include "account.frontend.resources" . | indent 10 }}
+      volumes:
+        - name: config-nginx
+          configMap:
+            name: {{ include "account.frontend.configmap.name.nginx" . }}
+        - name: config-site
+          configMap:
+            name: {{ include "account.frontend.configmap.name.site" . }}
+        {{- if .Values.global.account.persistantVolumeClaimCreate }}
+        - name: {{ .Values.appName }}-claim
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.account.persistantVolumeClaimName }}
+            readOnly: false
+        {{- end }}
+      {{- with .Values.global.account.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.account.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.account.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

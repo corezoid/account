@@ -5,11 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
-## Chart 0.0.18 [SingleSpace 2.14.5] - 2023-09-06
+## Chart 0.1.18 [SingleSpace 3.2.0] - 2023-12-06
 ### Helm changes
 - New applications versions:
-  - singlespace - 2.15.4
+  - auth - 3.2.2
+  - workspace - 3.2.2
+  - ingress - 0.1.0
+- Added to app names `account-`
+- Added new application `account-frontend` - currently in development, should be disabled
+- Refactor sub charts
+
+### Improvements / New Features
+
+On the Roles tab, the Roles table has been improved:
+- Virtualisation has been added.
+- The limit of pagination parameters has been increased to 999.
+
+
+## Chart 0.1.17 [SingleSpace 3.1.1] - 2023-12-06
+### Helm changes
+- New applications versions:
+   - auth - 3.1.1
+   - workspace - 3.1.1
+   - ingress - 0.1.0
+- Rename application `singlespace` to `workspace`
+- Add new application `auth` for authorization
+- Refactor sub charts
+
+### Improvements / New Features
+
+#### 3.1.0:
+- Created the public API of the following groups: Workspaces, Groups, Invites, Users. For more information, go to Swager.
+- You can transfer your Workspace ownership to another user. When you leave a Workspace, transfer your Workspace ownership to another user, have been removed from a Workspace, or remove a user form a Workspace, you have to transfer your/removed user’s objects ownership to another user. For more information, go to Settings.
+- Created MVP of the new authorization module.
+- When you invite a user to your Workspace, your invitation has no expiration date, and the invited user can confirm your invitation after any period of time.
+
+#### 3.0:
+- On the Roles tab, you can see the roles as a list with the number of permissions and users for each role by clicking the corresponding icon in the upper-right corner of the page.
+- Implemented a new module with licenses that allows you to buy a license, make payments, track state changes, and so on.
+- Your company in Corezoid will appear as your company in Simulator as well. But when deleting the last company, you will have a new one anyway as you cannot have no company on the platform.
+
 
 
 ## Chart 0.0.17 [SingleSpace 2.14.2] - 2023-08-19

@@ -1,0 +1,37 @@
+apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
+kind: Role
+metadata:
+  name: {{ include "account.frontend.role.name" . }}
+rules:
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: [{{ include "account.frontend.configmap.name.nginx" . | quote }}, {{ include "account.frontend.configmap.name.site" . | quote }} ]
+  verbs: ["get"]
+
+---
+apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
+kind: RoleBinding
+metadata:
+  name: {{ include "account.frontend.roleBinding.name" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "account.frontend.serviceaccount.name" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "account.frontend.role.name" . }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "account.frontend.serviceaccount.name" . }}
+  {{- if .Values.global.account.frontend.serviceAccount }}
+  {{- with .Values.global.account.frontend.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}

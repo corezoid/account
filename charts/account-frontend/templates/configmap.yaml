@@ -1,0 +1,131 @@
+{{- if eq .Values.global.account.enabled true }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "account.frontend.configmap.name.nginx" . }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes 1;
+    error_log /dev/stdout;
+    pid        /var/run/nginx.pid;
+
+    events {
+      worker_connections  32000;
+      multi_accept on;
+    }
+
+    http {
+      client_max_body_size 25m;
+      server_names_hash_bucket_size 128;
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+      log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$http_cookie\t$host';
+      access_log /dev/stdout up_log;
+
+      sendfile        on;
+      tcp_nopush     on;
+
+      server_tokens   off;
+      # disable buffering
+      proxy_buffering off;
+      proxy_max_temp_file_size 0;
+      keepalive_timeout  65;
+      gzip on;
+      gzip_types text/css application/x-javascript text/xml application/xml application/xml+rss text/plain application/javascript text/javascript application/json image/png image/svg+xml;
+      gzip_proxied any;
+      include /etc/nginx/conf.d/*.conf;
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "account.frontend.configmap.name.site" . }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+data:
+  {{ .Values.appName }}.conf: |
+    server {
+      listen {{ include "account.frontend.portNumber" . }};
+      server_name {{ include "account.domainFull" . }};
+
+      access_log /dev/stdout main;
+      error_log  /dev/stdout;
+
+      root /ebsmnt/www/mw-auth;
+      set $static_local    {{ .Values.global.account.persistantVolumeClaimShareDir }};
+
+      add_header X-Frame-Options "SAMEORIGIN";
+
+      location /avatars {
+
+        add_header      Content-Type image/jpeg;
+        error_page  404  =200   /avatars/0.jpg;
+
+        root $static_local;
+
+        # mystic header
+        add_header                      X-Id true;
+        add_header 'Access-Control-Allow-Origin' '*';
+
+        # clear headers
+        proxy_hide_header               x-amz-id-2;
+        proxy_hide_header               x-Amz-request-id;
+        proxy_hide_header               x-amz-meta-s3cmd-attrs;
+        proxy_hide_header               ETag;
+
+        # disable buffering
+        proxy_buffering                 off;
+        proxy_max_temp_file_size        0;
+
+        proxy_intercept_errors          on;
+      }
+
+      location ~ ^/avatars/(.+)x(.+)/(.+) {
+        set                         $width  $1;
+        set                         $height $2;
+
+        proxy_http_version 1.1;
+        add_header      Content-Type image/jpeg;
+        error_page  404 415  =200   0.jpg;
+        root $static_local;
+
+
+
+        # mystic header
+        add_header                      X-Id true;
+        add_header 'Access-Control-Allow-Origin' '*';
+
+        # clear headers
+        proxy_hide_header “Set-Cookie”;
+        proxy_hide_header               x-amz-id-2;
+        proxy_hide_header               x-Amz-request-id;
+        proxy_hide_header               x-amz-meta-s3cmd-attrs;
+        proxy_hide_header               ETag;
+
+        proxy_intercept_errors          on;
+      }
+
+      location / {
+        try_files $uri /index.html;
+      }
+
+      location ~ /system/conf {
+        proxy_pass http://{{ include "account.auth.service.name" . }}:{{ include "account.auth.portNumber" . }};
+      }
+
+      location ~ ^/(api|auth|oauth2|download) {
+        proxy_pass http://{{ include "account.auth.service.name" . }}:{{ include "account.auth.portNumber" . }};
+      }
+
+      location ~ ^/(client|face|webhook) {
+        proxy_pass http://{{ include "account.workspace.service.name" . }}:{{ include "account.workspace.portNumber" . }};
+      }
+
+    }
+  {{- end }}

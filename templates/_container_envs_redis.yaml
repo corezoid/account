@@ -1,0 +1,59 @@
+{{- define "account.container_envs_redis" -}}
+{{- $sa_secret_redis := "" }}
+
+{{- if .Values.global.account.redis }}
+{{- $sa_secret_redis = .Values.global.account.redis.secret }}
+{{- else if .Values.global.db }}
+{{- $sa_secret_redis = .Values.global.redis.secret }}
+{{- else }}
+{{- $sa_secret_redis = nil }}
+{{- end }}
+
+{{- $redis_secret_name := ( include "account.redisSecretName" . ) }}
+- name: REDIS_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: host
+- name: REDIS_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: port
+- name: REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: password
+{{- if $sa_secret_redis.database }}
+- name: REDIS_DB
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: password
+{{- else }}
+- name: REDIS_DB
+  value: "11"
+{{- end }}
+{{- if $sa_secret_redis.host_cache }}
+- name: REDIS_HOST_CACHE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: host_cache
+{{- end }}
+{{- if $sa_secret_redis.port_cache }}
+- name: REDIS_PORT_CACHE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: port_cache
+{{- end }}
+{{- if $sa_secret_redis.password_cache }}
+- name: REDIS_PASSWORD_CACHE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $redis_secret_name }}
+      key: password_cache
+{{- end }}
+{{- end }}

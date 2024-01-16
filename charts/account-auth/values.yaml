@@ -1,0 +1,8 @@
+appName: account-auth
+
+image:
+  registry: docker-hub.middleware.biz
+  repository: account-auth
+
+configPath: "/opt/conf"
+configName: "config.yml"

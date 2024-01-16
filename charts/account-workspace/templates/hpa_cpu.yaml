@@ -1,0 +1,22 @@
+{{- $workspace_data := .Values.global.account.workspace }}
+{{- if $workspace_data.autoscaling }}
+{{- if $workspace_data.autoscaling.enabled }}
+{{- $autoscaling := $workspace_data.autoscaling }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "account.workspace.cpuHpa.name" . }}
+  labels:
+    {{- include "account.workspace.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "account.workspace.deployment.name" . }}
+  minReplicas: {{ $autoscaling.minReplicas }}
+  maxReplicas: {{ $autoscaling.maxReplicas }}
+  {{- if $autoscaling.targetCPUUtilizationPercentage }}
+  targetCPUUtilizationPercentage: {{ $autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+{{- end }}
+{{- end }}

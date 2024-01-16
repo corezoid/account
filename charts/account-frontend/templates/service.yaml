@@ -1,0 +1,16 @@
+{{- if eq .Values.global.account.enabled true }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "account.frontend.service.name" . }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "account.frontend.labels" . | nindent 6 }}
+  ports:
+    - name: {{ include "account.frontend.portHttpName" . }}
+      port: {{ include "account.frontend.portNumber" . }}
+      targetPort: {{ include "account.frontend.portNumber" . }}
+      protocol: {{ include "account.frontend.portProtocol" . }}
+{{- end }}

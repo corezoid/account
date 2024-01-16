@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "account.workspace.service.name" . }}
+  labels:
+    {{- include "account.workspace.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "account.workspace.labels" . | nindent 6 }}
+  ports:
+    - name: {{ include "account.workspace.portHttpName" . }}
+      port: {{ include "account.workspace.portNumber" . }}
+      targetPort: {{ include "account.workspace.portNumber" . }}
+      protocol: {{ include "account.workspace.portProtocol" . }}

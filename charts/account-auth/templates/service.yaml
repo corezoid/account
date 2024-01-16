@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "account.auth.service.name" . }}
+  labels:
+    {{- include "account.auth.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "account.auth.labels" . | nindent 6 }}
+  ports:
+    - name: {{ include "account.auth.portHttpName" . }}
+      port: {{ include "account.auth.portNumber" . }}
+      targetPort: {{ include "account.auth.portNumber" . }}
+      protocol: {{ include "account.auth.portProtocol" . }}

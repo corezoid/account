@@ -1,0 +1,8 @@
+appName: workspace
+
+image:
+  registry: docker-hub.middleware.biz
+  repository: account-workspace
+
+configPath: "/opt/conf"
+configName: "config.yml"

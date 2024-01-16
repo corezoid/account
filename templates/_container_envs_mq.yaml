@@ -1,0 +1,43 @@
+{{- define "workspace.container_envs_mq" -}}
+{{- $sa_secret_mq := "" }}
+
+{{- if .Values.global.account.mq }}
+{{- $sa_secret_mq = .Values.global.account.mq.secret }}
+{{- else if .Values.global.mq }}
+{{- $sa_secret_mq = .Values.global.mq.secret }}
+{{- else }}
+{{- $sa_secret_mq = nil }}
+{{- end }}
+
+{{- if eq .Values.global.account.enabled true }}
+{{- if $sa_secret_mq.create }}
+
+{{- $mq_secret_name := ( include "workspace.mqSecretName" . ) }}
+- name: MQ_HOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $mq_secret_name }}
+      key: host
+- name: MQ_PORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $mq_secret_name }}
+      key: port
+- name: MQ_VHOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $mq_secret_name }}
+      key: vhost
+- name: MQ_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $mq_secret_name }}
+      key: username
+- name: MQ_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $mq_secret_name }}
+      key: password
+{{- end }}
+{{- end }}
+{{- end }}

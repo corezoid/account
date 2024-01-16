@@ -1,0 +1,5 @@
+appName: single-account-frontend
+
+image:
+  registry: docker-hub.middleware.biz
+  repository: mw-auth

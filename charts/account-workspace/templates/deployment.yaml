@@ -1,0 +1,90 @@
+{{- $workspace_data := .Values.global.account.workspace }}
+{{- $app_name := (include "module.workspace.name" . ) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "account.workspace.deployment.name" . }}
+  labels:
+    {{- include "account.workspace.labels" . | nindent 4 }}
+spec:
+{{- if $workspace_data.autoscaling }}
+{{- if $workspace_data.autoscaling.enabled }}
+  replicas: {{ $workspace_data.autoscaling.minReplicas }}
+{{- end }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "account.workspace.labels" . | nindent 6 }}
+{{- with .Values.global.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+{{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "account.workspace.labels" . | nindent 8 }}
+    spec:
+      {{- if not (eq .Values.global.repotype "public") }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
+      {{- end }}
+      serviceAccountName: {{- include "account.workspace.serviceaccount.name" . | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.global.account.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init-wait-main-postgresql
+          image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
+              do echo waiting for Database; sleep 2; done;
+          env:
+            {{- include "account.container_envs_db" . | nindent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      containers:
+        - name: {{ include "module.workspace.name" . }}
+          securityContext:
+            {{- toYaml .Values.global.account.securityContext | nindent 14 }}
+          image: {{ include "account.workspace.imageUrl" . | quote }}
+          imagePullPolicy: {{ .Values.global.account.pullPolicy }}
+          env:
+            - name: SS_CONFIG
+              value: {{ .Values.configPath }}/{{ .Values.configName }}
+          {{- include "account.container_envs_redis" . | nindent 12 }}
+          {{- include "account.container_envs_db" . | nindent 12 }}
+          ports:
+            - name: {{ include "account.workspace.portHttpName" . }}
+              containerPort: {{ include "account.workspace.portNumber" . }}
+              protocol: {{ include "account.workspace.portProtocol" . }}
+          volumeMounts:
+            - name: {{ $app_name }}-config-volume
+              mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
+              subPath: config.yml
+          {{- include "account.workspace.resources" . | indent 10 }}
+      volumes:
+        - name: {{ $app_name }}-config-volume
+          configMap:
+            name: {{ include "account.workspace.configmap.name" . }}
+      {{- with .Values.global.account.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.account.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.account.tolerations }}
+
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

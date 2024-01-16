@@ -1,0 +1,58 @@
+{{- define "account.container_envs_db" -}}
+{{- $sa_secret_db := "" }}
+{{- if .Values.global.account.db }}
+{{- $sa_secret_db = .Values.global.account.db.secret }}
+{{- else if .Values.global.db }}
+{{- $sa_secret_db = .Values.global.db.secret }}
+{{- else }}
+{{- $sa_secret_db = nil }}
+{{- end }}
+{{- $db_secret_name := ( include "account.postgresSecretName" . ) }}
+{{- if .Values.global.db.bouncer }}
+- name: POSTGRES_DBHOST
+  value: pgbouncer-service
+- name: POSTGRES_DBPORT
+  value: {{ .Values.global.db.bouncer_port | quote }}
+{{- else }}
+- name: POSTGRES_DBHOST
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbhost
+- name: POSTGRES_DBPORT
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbport
+{{- end }}
+- name: POSTGRES_DBUSER
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbuser
+- name: POSTGRES_DBPWD
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbpwd
+{{- if $sa_secret_db.dbname }}
+- name: DB_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: dbname
+{{- else }}
+- name: DB_NAME
+  value: accounts
+{{- end }}
+{{- if $sa_secret_db.sslmode }}
+- name: DB_SSLMODE
+  valueFrom:
+    secretKeyRef:
+      name: {{ $db_secret_name }}
+      key: sslmode
+{{- else }}
+- name: DB_SSLMODE
+  value: disable
+{{- end }}
+{{- end }}

@@ -1,17 +1,18 @@
-{{- if .Values.global.sa.singlespace.autoscaling }}
-{{- if .Values.global.sa.singlespace.autoscaling.enabled }}
-{{- $autoscaling := .Values.global.sa.singlespace.autoscaling }}
+{{- $auth_data := .Values.global.account.auth }}
+{{- if $auth_data.autoscaling }}
+{{- if $auth_data.autoscaling.enabled }}
+{{- $autoscaling := $auth_data.autoscaling }}
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ .Values.appName }}-cpu-autoscale
+  name: {{ include "account.auth.cpuHpa.name" . }}
   labels:
-{{- include "sa-singlespace.labels" . | nindent 4 }}
+    {{- include "account.auth.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ .Values.appName }}-deployment
+    name: {{ include "account.auth.deployment.name" . }}
   minReplicas: {{ $autoscaling.minReplicas }}
   maxReplicas: {{ $autoscaling.maxReplicas }}
   {{- if $autoscaling.targetCPUUtilizationPercentage }}

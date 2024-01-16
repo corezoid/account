@@ -1,1 +1,1 @@
-https://{{ .Values.global.sa.subDomain }}.{{ .Values.global.domain }}
+https://{{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}

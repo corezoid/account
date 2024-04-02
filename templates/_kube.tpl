@@ -10,3 +10,12 @@
 {{- define "account.frontend.service.name" -}}
 {{- include "module.frontend.name" . }}-service
 {{- end -}}
+
+{{- define "account.pvc.name" -}}
+{{ include "module.name" . }}-{{ .Release.Name }}-pvc
+{{- end -}}
+
+{{- define "account.pvc.labels" -}}
+release: {{ .Release.Name }}
+module: {{ include "module.name" . }}
+{{- end -}}

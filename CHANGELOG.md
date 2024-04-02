@@ -5,12 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Chart 0.1.18 [SingleSpace 3.2.0] - 2023-12-06
+## Chart 0.2.0 [SingleSpace 3.4.0] - 2024-03-20
 ### Helm changes
 - New applications versions:
-  - auth - 3.2.4
-  - workspace - 3.2.4
-  - ingress - 0.1.0
+    - auth - 3.4.0
+    - workspace - 3.4.0
+    - frontend - 3.4.0
+    - ingress - 0.1.0
+- Refactor sub charts
+- Refactor values.yaml (we have added a separate config block for the auth and workspace applications)
+- **Attention, Release of the new authorization module!
+  This module operates independently of the Erlang application. Prior to installation, we recommend consulting for guidance.**
+
+### Improvements / New Features
+
+The following features have been added and improved:
+
+#### 1. You can enter user names in Cyrillic in the Sign in form.
+#### 2. The redesign of the Profile page has been implemented.
+#### 3. You can view all your Workspaces even if you have them more than 100 by using scroll.
+#### 4. The counters have been fixed when filtering users.
+
+
+## Chart 0.1.18 [SingleSpace 3.2.0] - 2024-01-09
+### Helm changes
+- New applications versions:
+    - auth - 3.2.4
+    - workspace - 3.2.4
+    - ingress - 0.1.0
 - Added to app names `account-`
 - Added new application `account-frontend` - currently in development, should be disabled
 - Refactor sub charts
@@ -44,6 +66,7 @@ On the Roles tab, the Roles table has been improved:
 - On the Roles tab, you can see the roles as a list with the number of permissions and users for each role by clicking the corresponding icon in the upper-right corner of the page.
 - Implemented a new module with licenses that allows you to buy a license, make payments, track state changes, and so on.
 - Your company in Corezoid will appear as your company in Simulator as well. But when deleting the last company, you will have a new one anyway as you cannot have no company on the platform.
+
 
 
 ## Chart 0.0.17 [SingleSpace 2.14.2] - 2023-08-19

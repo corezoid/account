@@ -1,4 +1,6 @@
-{{- if eq .Values.global.account.enabled true }}
+{{- if eq .Values.global.account.frontend.enabled true }}
+{{- $global_data := .Values.global }}
+{{- $account_data := .Values.global.account }}
 {{- $auth_data := .Values.global.account.frontend }}
 {{- $app_name := (include "module.frontend.name" . ) }}
 apiVersion: apps/v1
@@ -8,7 +10,7 @@ metadata:
   labels:
     {{- include "account.frontend.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.global.account.frontend.autoscaling.enabled }}
+  {{- if .Values.global.account.frontend.autoscaling.enabled }}
   replicas: {{ .Values.global.account.frontend.autoscaling.minReplicas }}
   {{- end }}
   selector:
@@ -45,20 +47,20 @@ spec:
             - name: {{ include "account.frontend.portHttpName" . }}
               containerPort: {{ include "account.frontend.portNumber" . }}
               protocol: {{ include "account.frontend.portProtocol" . }}
-          resources:
-            {{- toYaml .Values.global.account.frontend.resources | nindent 12 }}
+          {{- include "account.frontend.resources" . | indent 10 }}
           volumeMounts:
             - name: config-nginx
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+              readOnly: true
             - name: config-site
               mountPath: /etc/nginx/conf.d/{{ .Values.appName }}.conf
               subPath: {{ .Values.appName }}.conf
+              readOnly: true
             {{- if .Values.global.account.persistantVolumeClaimCreate }}
             - name: {{ .Values.appName }}-claim
-              mountPath: {{ .Values.global.account.persistantVolumeClaimShareDir }}
+              mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
             {{- end }}
-            {{- include "account.frontend.resources" . | indent 10 }}
       volumes:
         - name: config-nginx
           configMap:
@@ -70,7 +72,7 @@ spec:
         - name: {{ .Values.appName }}-claim
           persistentVolumeClaim:
             claimName: {{ .Values.global.account.persistantVolumeClaimName }}
-            readOnly: false
+            readOnly: true
         {{- end }}
       {{- with .Values.global.account.nodeSelector }}
       nodeSelector:

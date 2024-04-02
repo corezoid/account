@@ -22,37 +22,6 @@ for tbl in `psql -h single_account_database_host -p 5432 -qAt -c "select sequenc
 for tbl in `psql -h single_account_database_host -p 5432 -qAt -c "select table_name from information_schema.views where table_schema = 'public';" accounts` ; do  psql -h single_account_database_host -p 5432 -c "alter view \"$tbl\" owner to application_user" accounts ; done
 ```
 
-## Nginx
-
-Need to add this block to current nGinx config file for single-account domain:
-
-```nginx
-location ~ ^/(client|face|webhook) {
-	proxy_http_version     1.1;
-	proxy_set_header       Connection "";
-	proxy_set_header       Host $host;
-	proxy_hide_header      x-amz-id-2;
-	proxy_hide_header      x-amz-request-id;
-	proxy_hide_header      x-amz-meta-server-side-encryption;
-	proxy_hide_header      x-amz-server-side-encryption;
-	proxy_hide_header      Set-Cookie;
-	proxy_ignore_headers   Set-Cookie;
-	proxy_intercept_errors on;
-	proxy_buffering        off;
-	proxy_pass             https://AWS_NLB_WITH_SINGLESPACE_ENDPOINT;
-}
-```
-
-## Single-account appication
-
-Add block above in `single_account.config` file inside block `{single_account, []}`:
-
-```
-{single_space, [
-  {disabled, false}
-]},
-```
-
 # Install
 
 
@@ -62,7 +31,7 @@ Add block above in `single_account.config` file inside block `{single_account, [
 
 
 Create namespace if need:
-```kubectl create namespace sa```
+```kubectl create namespace account```
 
 Make changes in `values.yaml` file and run command:
-```helm upgrade --install singlespace -n sa -f ./values.yaml .```
+```helm upgrade --install account -n account -f ./values.yaml .```

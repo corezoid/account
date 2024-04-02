@@ -71,7 +71,7 @@ TCP
 Image url
 */}}
 {{- define "account.frontend.imageUrl" -}}
-{{- if and (ne .Values.global.imageRegistry "") (ne .Values.global.imageRegistry "docker-hub.middleware.biz") }}{{ .Values.global.imageRegistry }}/{{- end}}{{ .Values.image.registry }}/{{ if .Values.global.useCentos8 }}{{ .Values.global.centos8Repo }}/{{ else }}{{- if not (eq .Values.global.repotype "") }}{{ .Values.global.repotype }}/{{- end }}{{ end }}{{ .Values.image.repository }}:{{ .Values.global.account.frontend.tag }}
+{{- if and (ne .Values.global.imageRegistry "") (ne .Values.global.imageRegistry "docker-hub.middleware.biz") }}{{ .Values.global.imageRegistry }}/{{- end}}{{ .Values.image.registry }}/{{ if .Values.global.useCentos8 }}{{ .Values.global.centos8Repo }}/{{ else }}{{- if not (eq .Values.global.repotype "") }}{{ .Values.global.repotype }}/{{- end }}{{ end }}{{ .Values.image.repository }}:{{ .Values.global.account.frontend.tag  | default .Chart.AppVersion }}
 {{- end }}
 
 {{- define "account.frontend.annotations" -}}

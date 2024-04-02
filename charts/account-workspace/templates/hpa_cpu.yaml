@@ -1,4 +1,6 @@
-{{- $workspace_data := .Values.global.account.workspace }}
+{{- $global_data := .Values.global }}
+{{- $account_data := .Values.global.account }}
+{{- $workspace_data := $account_data.workspace }}
 {{- if $workspace_data.autoscaling }}
 {{- if $workspace_data.autoscaling.enabled }}
 {{- $autoscaling := $workspace_data.autoscaling }}

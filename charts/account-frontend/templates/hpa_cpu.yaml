@@ -1,0 +1,22 @@
+{{- $frontend_data := .Values.global.account.frontend }}
+{{- if $frontend_data.autoscaling }}
+{{- if $frontend_data.autoscaling.enabled }}
+{{- $autoscaling := $frontend_data.autoscaling }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "account.frontend.cpuHpa.name" . }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "account.frontend.deployment.name" . }}
+  minReplicas: {{ $autoscaling.minReplicas }}
+  maxReplicas: {{ $autoscaling.maxReplicas }}
+  {{- if $autoscaling.targetCPUUtilizationPercentage }}
+  targetCPUUtilizationPercentage: {{ $autoscaling.targetCPUUtilizationPercentage | default "80" }}
+  {{- end }}
+{{- end }}
+{{- end }}

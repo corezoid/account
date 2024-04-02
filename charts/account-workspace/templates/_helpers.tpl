@@ -42,11 +42,15 @@ application: {{ include "module.workspace.name" . }}
 {{- end }}
 {{- end }}
 
+{{- define "account.workspace.servicePortNumber" -}}
+80
+{{- end }}
+
 {{- define "account.workspace.portNumber" -}}
 {{- if .Values.global.account.workspace.port -}}
 {{ .Values.global.account.workspace.port }}
 {{- else }}
-{{- printf "%s" 8081 }}
+{{- printf "%s" 8080 }}
 {{- end -}}
 {{- end }}
 

@@ -1,4 +1,6 @@
-{{- $workspace_data := .Values.global.account.workspace }}
+{{- $global_data := .Values.global }}
+{{- $account_data := .Values.global.account }}
+{{- $workspace_data := $account_data.workspace }}
 {{- $app_name := (include "module.workspace.name" . ) }}
 apiVersion: apps/v1
 kind: Deployment
@@ -15,11 +17,11 @@ spec:
   selector:
     matchLabels:
       {{- include "account.workspace.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+{{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
@@ -31,16 +33,16 @@ spec:
       labels:
         {{- include "account.workspace.labels" . | nindent 8 }}
     spec:
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
+        - name: {{ $global_data.imagePullSecrets.name }}-{{ $global_data.env | default "prod" }}
       {{- end }}
       serviceAccountName: {{- include "account.workspace.serviceaccount.name" . | nindent 8 }}
       securityContext:
-        {{- toYaml .Values.global.account.podSecurityContext | nindent 8 }}
+        {{- toYaml $account_data.podSecurityContext | nindent 8 }}
       initContainers:
         - name: init-wait-main-postgresql
-          image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag | default .Chart.AppVersion }}"
+          image: "{{ $global_data.imageInit.repository }}:{{ $global_data.imageInit.tag | default .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -54,9 +56,9 @@ spec:
       containers:
         - name: {{ include "module.workspace.name" . }}
           securityContext:
-            {{- toYaml .Values.global.account.securityContext | nindent 14 }}
+            {{- toYaml $account_data.securityContext | nindent 14 }}
           image: {{ include "account.workspace.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.account.pullPolicy }}
+          imagePullPolicy: {{ $account_data.pullPolicy }}
           env:
             - name: SS_CONFIG
               value: {{ .Values.configPath }}/{{ .Values.configName }}
@@ -66,25 +68,33 @@ spec:
             - name: {{ include "account.workspace.portHttpName" . }}
               containerPort: {{ include "account.workspace.portNumber" . }}
               protocol: {{ include "account.workspace.portProtocol" . }}
+          {{- include "account.workspace.resources" . | indent 10 }}
           volumeMounts:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
               subPath: config.yml
-          {{- include "account.workspace.resources" . | indent 10 }}
+            {{- if $account_data.persistantVolumeClaimCreate }}
+            - name: {{ $app_name }}-pvc
+              mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
+            {{- end }}
       volumes:
         - name: {{ $app_name }}-config-volume
           configMap:
             name: {{ include "account.workspace.configmap.name" . }}
-      {{- with .Values.global.account.nodeSelector }}
+        {{- if $account_data.persistantVolumeClaimCreate }}
+        - name: {{ $app_name }}-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.account.persistantVolumeClaimName }}
+        {{- end }}
+      {{- with $account_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.account.affinity }}
+      {{- with $account_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.account.tolerations }}
-
+      {{- with $account_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

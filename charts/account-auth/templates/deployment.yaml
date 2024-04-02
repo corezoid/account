@@ -1,4 +1,6 @@
-{{- $auth_data := .Values.global.account.auth }}
+{{- $global_data := .Values.global }}
+{{- $account_data := .Values.global.account }}
+{{- $auth_data := $account_data.auth }}
 {{- $app_name := (include "module.auth.name" . ) }}
 apiVersion: apps/v1
 kind: Deployment
@@ -15,11 +17,11 @@ spec:
   selector:
     matchLabels:
       {{- include "account.auth.labels" . | nindent 6 }}
-{{- with .Values.global.deploymentStrategy }}
+{{- with $global_data.deploymentStrategy }}
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-{{- if eq .Values.global.deploymentStrategy.type "RollingUpdate" }}
+{{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
@@ -33,14 +35,14 @@ spec:
     spec:
       {{- if not (eq .Values.global.repotype "public") }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
+        - name: {{ $global_data.imagePullSecrets.name }}-{{ $global_data.env | default "prod" }}
       {{- end }}
       serviceAccountName: {{- include "account.auth.serviceaccount.name" . | nindent 8 }}
       securityContext:
-        {{- toYaml .Values.global.account.podSecurityContext | nindent 8 }}
+        {{- toYaml $account_data.podSecurityContext | nindent 8 }}
       initContainers:
         - name: init-wait-main-postgresql
-          image: "{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag | default .Chart.AppVersion }}"
+          image: "{{ $global_data.imageInit.repository }}:{{ $global_data.imageInit.tag | default .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -54,9 +56,9 @@ spec:
       containers:
         - name: {{ include "module.auth.name" . }}
           securityContext:
-            {{- toYaml .Values.global.account.securityContext | nindent 14 }}
+            {{- toYaml $account_data.securityContext | nindent 14 }}
           image: {{ include "account.auth.imageUrl" . | quote }}
-          imagePullPolicy: {{ .Values.global.account.pullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ $account_data.pullPolicy | default "IfNotPresent" }}
           env:
             - name: SS_CONFIG
               value: "{{ .Values.configPath }}/{{ .Values.configName }}"
@@ -76,6 +78,17 @@ spec:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
               subPath: {{ .Values.configName }}
+            {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
+            {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
+            - name: metadata-google
+              mountPath: /opt/conf/google_metadata.xml
+              subPath: google_metadata.xml
+            {{- end }}
+            {{- end }}
+            {{- if $account_data.persistantVolumeClaimCreate }}
+            - name: {{ $app_name }}-pvc
+              mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
+            {{- end }}
             {{- if $auth_data.auth_providers_keys }}
             {{- if $auth_data.auth_providers_keys.apple }}
             - name: auth-apple-secret
@@ -84,11 +97,22 @@ spec:
             {{- end }}
             {{- end }}
           {{- include "account.auth.resources" . | indent 10 }}
-
       volumes:
         - name: {{ $app_name }}-config-volume
           configMap:
             name: {{ include "account.auth.configmap.name" . }}
+        {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
+        {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
+        - name: metadata-google
+          secret:
+            secretName: {{ .Values.global.account.config.auth_providers.saml.google_saml.secret_name | default "metadata-google-secret" }}
+        {{- end }}
+        {{- end }}
+        {{- if $account_data.persistantVolumeClaimCreate }}
+        - name: {{ $app_name }}-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.account.persistantVolumeClaimName }}
+        {{- end }}
         {{- if $auth_data.auth_providers_keys }}
         {{- if $auth_data.auth_providers_keys.apple }}
         - name: auth-apple-secret
@@ -99,15 +123,15 @@ spec:
               path: apple
         {{- end }}
         {{- end }}
-      {{- with .Values.global.account.nodeSelector }}
+      {{- with $account_data.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.account.affinity }}
+      {{- with $account_data.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.account.tolerations }}
+      {{- with $account_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

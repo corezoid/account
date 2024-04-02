@@ -42,11 +42,15 @@ application: {{ include "module.auth.name" . }}
 {{- end }}
 {{- end -}}
 
+{{- define "account.auth.servicePortNumber" -}}
+80
+{{- end }}
+
 {{- define "account.auth.portNumber" -}}
 {{- if .Values.global.account.auth.port -}}
 {{ .Values.global.account.auth.port }}
 {{- else }}
-{{- printf "%s" 8081 }}
+{{- printf "%s" 8080 }}
 {{- end -}}
 {{- end }}
 

@@ -6,7 +6,7 @@ imagePullSecrets:
 {{- end -}}
 
 {{- define "account.domainFull" -}}
-{{- if and .Values.global .Values.global.sa .Values.global.account.enabled -}}
+{{- if and .Values.global .Values.global.account .Values.global.account.enabled -}}
   {{- if .Values.global.account.subDomain -}}
     {{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
   {{- else -}}
@@ -25,18 +25,6 @@ imagePullSecrets:
 {{- $sa_secret_db = nil }}
 {{- end }}
 {{- printf "%s-%s" .Release.Name $sa_secret_db.name | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end -}}
-
-{{- define "workspace.mqSecretName" -}}
-{{- $sa_secret_mq := "" }}
-{{- if .Values.global.account.mq }}
-{{- $sa_secret_mq = .Values.global.account.mq.secret }}
-{{- else if .Values.global.mq }}
-{{- $sa_secret_mq = .Values.global.mq.secret }}
-{{- else }}
-{{- $sa_secret_mq = nil }}
-{{- end }}
-{{- printf "%s-%s" .Release.Name $sa_secret_mq.name | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
 {{- define "account.redisSecretName" -}}
@@ -89,5 +77,10 @@ Return the appropriate apiVersion for RBAC resources.
 {{- else -}}
 {{- print "rbac.authorization.k8s.io/v1" -}}
 {{- end -}}
+{{- end -}}
+
+
+{{- define "saDomain" -}}
+{{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
 {{- end -}}
 

@@ -1,4 +1,6 @@
-{{- if eq .Values.global.account.enabled true }}
+{{- $global_data := .Values.global }}
+{{- $account_data := $global_data.account }}
+{{- if eq .Values.global.account.frontend.enabled true }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,6 +13,8 @@ data:
     worker_processes 1;
     error_log /dev/stdout;
     pid        /var/run/nginx.pid;
+
+    load_module /etc/nginx/modules/ngx_http_image_filter_module.so;
 
     events {
       worker_connections  32000;
@@ -25,7 +29,7 @@ data:
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-      log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$http_cookie\t$host';
+      log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$host';
       access_log /dev/stdout up_log;
 
       sendfile        on;
@@ -39,6 +43,7 @@ data:
       gzip on;
       gzip_types text/css application/x-javascript text/xml application/xml application/xml+rss text/plain application/javascript text/javascript application/json image/png image/svg+xml;
       gzip_proxied any;
+
       include /etc/nginx/conf.d/*.conf;
     }
 ---
@@ -52,38 +57,40 @@ data:
   {{ .Values.appName }}.conf: |
     server {
       listen {{ include "account.frontend.portNumber" . }};
-      server_name {{ include "account.domainFull" . }};
+      server_name {{ .Values.global.account.subDomain }}.{{ .Values.global.domain }};
 
-      access_log /dev/stdout main;
+      access_log /dev/stdout up_log;
       error_log  /dev/stdout;
 
       root /ebsmnt/www/mw-auth;
-      set $static_local    {{ .Values.global.account.persistantVolumeClaimShareDir }};
+      set $avatars_local    /{{ .Values.global.account.persistantVolumeClaimShareDir }};
 
-      add_header X-Frame-Options "SAMEORIGIN";
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+      add_header X-Content-Type-Options nosniff;
+      add_header X-Frame-Options SAMEORIGIN;
+      add_header X-XSS-Protection "1; mode=block";
+      add_header 'Referrer-Policy' 'origin-when-cross-origin';
+      add_header Permissions-Policy "geolocation=(), camera=()";
+      add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://www.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company;";
+
+      location @redirect {
+          return 302 /avatars/54x54/0.jpg;
+      }
 
       location /avatars {
 
         add_header      Content-Type image/jpeg;
-        error_page  404  =200   /avatars/0.jpg;
+        error_page 404 415 = @redirect;
+        alias $avatars_local;
 
-        root $static_local;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://www.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company;";
 
-        # mystic header
-        add_header                      X-Id true;
-        add_header 'Access-Control-Allow-Origin' '*';
-
-        # clear headers
-        proxy_hide_header               x-amz-id-2;
-        proxy_hide_header               x-Amz-request-id;
-        proxy_hide_header               x-amz-meta-s3cmd-attrs;
-        proxy_hide_header               ETag;
-
-        # disable buffering
-        proxy_buffering                 off;
-        proxy_max_temp_file_size        0;
-
-        proxy_intercept_errors          on;
       }
 
       location ~ ^/avatars/(.+)x(.+)/(.+) {
@@ -92,39 +99,53 @@ data:
 
         proxy_http_version 1.1;
         add_header      Content-Type image/jpeg;
-        error_page  404 415  =200   0.jpg;
-        root $static_local;
+        error_page 404 415 = @redirect;
+        alias $avatars_local/$3;
 
+        expires 1d;
+        image_filter                crop  $width  $height;
+        image_filter_buffer 20M;
+        image_filter_jpeg_quality 75; # Desired JPG quality
 
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        {{- if .Values.global.simulator }}
+        add_header 'Access-Control-Allow-Origin' 'https://{{ .Values.global.simulator.subDomain}}.{{ .Values.global.simulator.mainDomian }}';
+        {{- end }}
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://www.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company;";
 
-        # mystic header
-        add_header                      X-Id true;
-        add_header 'Access-Control-Allow-Origin' '*';
-
-        # clear headers
-        proxy_hide_header “Set-Cookie”;
-        proxy_hide_header               x-amz-id-2;
-        proxy_hide_header               x-Amz-request-id;
-        proxy_hide_header               x-amz-meta-s3cmd-attrs;
-        proxy_hide_header               ETag;
-
-        proxy_intercept_errors          on;
       }
 
       location / {
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://www.keycloak.org/ https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://www.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company https://www.gstatic.com https://aadcdn.msauth.net;";
         try_files $uri /index.html;
       }
 
-      location ~ /system/conf {
-        proxy_pass http://{{ include "account.auth.service.name" . }}:{{ include "account.auth.portNumber" . }};
-      }
-
       location ~ ^/(api|auth|oauth2|download) {
-        proxy_pass http://{{ include "account.auth.service.name" . }}:{{ include "account.auth.portNumber" . }};
-      }
+        proxy_pass http://{{ include "account.auth.service.name" . }}:{{ .Values.global.account.auth.port | default 80}};
+        add_header Cache-Control "no-cache, must-revalidate";
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://www.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company;";
+     }
 
-      location ~ ^/(client|face|webhook) {
-        proxy_pass http://{{ include "account.workspace.service.name" . }}:{{ include "account.workspace.portNumber" . }};
+      location ~ ^/(client|public|face|webhook) {
+        proxy_pass http://{{ include "account.workspace.service.name" . }}:{{ .Values.global.account.workspace.port | default 80}};
+        add_header Cache-Control "no-cache, must-revalidate";
       }
 
     }

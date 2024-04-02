@@ -1,3 +1,4 @@
+{{- if eq .Values.global.account.frontend.enabled true }}
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 kind: Role
 metadata:
@@ -10,8 +11,9 @@ rules:
   resources: ["configmaps"]
   resourceNames: [{{ include "account.frontend.configmap.name.nginx" . | quote }}, {{ include "account.frontend.configmap.name.site" . | quote }} ]
   verbs: ["get"]
-
+{{- end }}
 ---
+{{- if eq .Values.global.account.frontend.enabled true }}
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 kind: RoleBinding
 metadata:
@@ -23,8 +25,9 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: {{ include "account.frontend.role.name" . }}
-
+{{- end }}
 ---
+{{- if eq .Values.global.account.frontend.enabled true }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -35,3 +38,4 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- end }}
+{{- end }}

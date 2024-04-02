@@ -21,38 +21,10 @@ spec:
     - host: {{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
       http:
         paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "account.auth.service.name" . }}
-                port:
-                  number: {{ include "account.auth.portNumber" . }}
-          - path: /auth
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "account.auth.service.name" . }}
-                port:
-                  number: {{ include "account.auth.portNumber" . }}
-          - path: /oauth2
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "account.auth.service.name" . }}
-                port:
-                  number: {{ include "account.auth.portNumber" . }}
-          - path: /download
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "account.auth.service.name" . }}
-                port:
-                  number: {{ include "account.auth.portNumber" . }}
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ include "account.workspace.service.name" . }}
+                name: {{ include "account.frontend.service.name" . }}
                 port:
-                  number: {{ include "account.workspace.portNumber" . }}
+                  number: 80

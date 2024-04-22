@@ -78,11 +78,13 @@ spec:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
               subPath: {{ .Values.configName }}
+            {{- if .Values.global.account.config.auth_providers.saml}}
             {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
             {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
             - name: metadata-google
               mountPath: /opt/conf/google_metadata.xml
               subPath: google_metadata.xml
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if $account_data.persistantVolumeClaimCreate }}
@@ -101,11 +103,13 @@ spec:
         - name: {{ $app_name }}-config-volume
           configMap:
             name: {{ include "account.auth.configmap.name" . }}
+        {{- if .Values.global.account.config.auth_providers.saml}}
         {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
         {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
         - name: metadata-google
           secret:
             secretName: {{ .Values.global.account.config.auth_providers.saml.google_saml.secret_name | default "metadata-google-secret" }}
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- if $account_data.persistantVolumeClaimCreate }}

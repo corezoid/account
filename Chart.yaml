@@ -1,16 +1,16 @@
 apiVersion: v2
-name: Account
+name: singlespace
 description: A Helm chart for Account
 icon: https://account.corezoid.com/static/logo.svg
 type: application
-version: 0.2.0
-appVersion: 3.4.0
+version: 0.2.1
+appVersion: 3.5.0
 dependencies:
   - name: account-auth
-    version: 0.1.3
+    version: 0.1.4
   - name: account-frontend
-    version: 0.1.2
+    version: 0.1.3
   - name: account-ingress
     version: 0.1.2
   - name: account-workspace
-    version: 0.1.3
+    version: 0.1.4

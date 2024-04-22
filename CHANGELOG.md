@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.1 [SingleSpace 3.5.0] - 2024-04-09
+### Helm changes
+- New applications versions:
+    - auth - 3.5.0
+    - workspace - 3.5.0
+    - frontend - 3.5.1
+    - ingress - 0.1.2
+- Refactor sub charts
+
+### Improvements / New Features
+
+The following features have been added and improved:
+
+#### 1. The password history has been added: you have to change your password after a specified period of time, and you cannot reuse any of your last 10 passwords.
+        Note: This refers to those users who have registered by entering a username and password and not entered by using Google account. 
+
+#### 2. You can select a colour instead of adding an image:
+
+          a. On the Profile page for your avatar
+
+          b. On the Keys page, when creating an API key 
+
+#### 3. On the Users tab of the Groups page, you can see the Roles and Last login columns.
+
+
 ## Chart 0.2.0 [SingleSpace 3.4.0] - 2024-03-20
 ### Helm changes
 - New applications versions:

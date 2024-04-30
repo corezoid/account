@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.2 [SingleSpace 3.6.0] - 2024-04-25
+### Helm changes
+- New applications versions:
+    - auth - 3.6.0
+    - workspace - 3.6.0
+    - frontend - 3.6.0
+    - ingress - 0.1.2
+
+### Improvements / New Features
+
+#### 1. On the Licenses & Billing page:
+- On the Licenses tab, you can view the type of license: Cloud, Desktop, or In-House.
+- On the Payments tab, you can download the invoice of the license paid according to the agreement with the invoice.
+- On the Details tab of a license, you can view state changes statistics: income amount, regular renewal amount, bonuses, used amount, and current balance.
+
+#### 2. On the Roles page, you can edit the Member role permissions by selecting or clearing the needed checkboxes.
+
+
 ## Chart 0.2.1 [SingleSpace 3.5.0] - 2024-04-09
 ### Helm changes
 - New applications versions:

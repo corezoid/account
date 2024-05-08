@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## Chart 0.2.3 [SingleSpace 3.7.0] - 2024-05-07
+### Helm changes
+- New applications versions:
+    - auth - 3.7.0
+    - workspace - 3.7.0
+    - frontend - 3.7.0
+    - ingress - 0.1.2
+
+### Improvements / New Features
+- User migrations 
+- Bug fix sql migration
+- When you turn on the Enable Two-factor authentication toggle on the Profile page, the QR codes to upload the authentication application for Android and iOS appear on the step 2.
+- When you buy a license on the Simulator.Company website, you can buy extra state changes by clicking Buy more on the Details tab of the license page.
+
 ## Chart 0.2.2 [SingleSpace 3.6.0] - 2024-04-25
 ### Helm changes
 - New applications versions:

@@ -1,7 +1,7 @@
-{{- $global_data := .Values.global }}
-{{- $account_data := .Values.global.account }}
-{{- $workspace_data := $account_data.workspace }}
-{{- $app_name := (include "module.workspace.name" . ) }}
+{{- $global_data := .Values.global -}}
+{{- $account_data := $global_data.account -}}
+{{- $workspace_data := $account_data.workspace -}}
+{{- $app_name := (include "module.workspace.name" . ) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,7 +50,7 @@ spec:
             - until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
               do echo waiting for Database; sleep 2; done;
           env:
-            {{- include "account.container_envs_db" . | nindent 12 }}
+            {{- include "account.container_envs_db" . | trim | nindent 12 }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
       containers:
@@ -62,13 +62,16 @@ spec:
           env:
             - name: SS_CONFIG
               value: {{ .Values.configPath }}/{{ .Values.configName }}
-          {{- include "account.container_envs_redis" . | nindent 12 }}
-          {{- include "account.container_envs_db" . | nindent 12 }}
+          {{- include "account.container_envs_redis" .  | trim | nindent 12 }}
+          {{- include "account.container_envs_db" .  | trim | nindent 12 }}
           ports:
             - name: {{ include "account.workspace.portHttpName" . }}
               containerPort: {{ include "account.workspace.portNumber" . }}
               protocol: {{ include "account.workspace.portProtocol" . }}
-          {{- include "account.workspace.resources" . | indent 10 }}
+          {{- with $workspace_data.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
@@ -84,7 +87,7 @@ spec:
         {{- if $account_data.persistantVolumeClaimCreate }}
         - name: {{ $app_name }}-pvc
           persistentVolumeClaim:
-            claimName: {{ .Values.global.account.persistantVolumeClaimName }}
+            claimName: {{ $account_data.persistantVolumeClaimName }}
         {{- end }}
       {{- with $account_data.nodeSelector }}
       nodeSelector:

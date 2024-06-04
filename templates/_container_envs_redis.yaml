@@ -1,15 +1,13 @@
 {{- define "account.container_envs_redis" -}}
-{{- $sa_secret_redis := "" }}
-
-{{- if .Values.global.account.redis }}
-{{- $sa_secret_redis = .Values.global.account.redis.secret }}
-{{- else if .Values.global.db }}
-{{- $sa_secret_redis = .Values.global.redis.secret }}
-{{- else }}
-{{- $sa_secret_redis = nil }}
-{{- end }}
-
-{{- $redis_secret_name := ( include "account.redisSecretName" . ) }}
+{{- $sa_secret_redis := "" -}}
+{{- if .Values.global.account.redis -}}
+{{- $sa_secret_redis = .Values.global.account.redis.secret -}}
+{{- else if .Values.global.db -}}
+{{- $sa_secret_redis = .Values.global.redis.secret -}}
+{{- else -}}
+{{- $sa_secret_redis = nil -}}
+{{- end -}}
+{{- $redis_secret_name := ( include "account.redisSecretName" . ) -}}
 - name: REDIS_HOST
   valueFrom:
     secretKeyRef:
@@ -56,4 +54,4 @@
       name: {{ $redis_secret_name }}
       key: password_cache
 {{- end }}
-{{- end }}
+{{- end -}}

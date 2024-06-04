@@ -1,13 +1,13 @@
 {{- define "account.container_envs_db" -}}
-{{- $sa_secret_db := "" }}
-{{- if .Values.global.account.db }}
-{{- $sa_secret_db = .Values.global.account.db.secret }}
-{{- else if .Values.global.db }}
-{{- $sa_secret_db = .Values.global.db.secret }}
-{{- else }}
-{{- $sa_secret_db = nil }}
-{{- end }}
-{{- $db_secret_name := ( include "account.postgresSecretName" . ) }}
+{{- $sa_secret_db := "" -}}
+{{- if .Values.global.account.db -}}
+{{- $sa_secret_db = .Values.global.account.db.secret -}}
+{{- else if .Values.global.db -}}
+{{- $sa_secret_db = .Values.global.db.secret -}}
+{{- else -}}
+{{- $sa_secret_db = nil -}}
+{{- end -}}
+{{- $db_secret_name := ( include "account.postgresSecretName" . ) -}}
 {{- if .Values.global.db.bouncer }}
 - name: POSTGRES_DBHOST
   value: pgbouncer-service
@@ -55,4 +55,4 @@
 - name: DB_SSLMODE
   value: disable
 {{- end }}
-{{- end }}
+{{- end -}}

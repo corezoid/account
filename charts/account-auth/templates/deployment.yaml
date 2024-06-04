@@ -1,7 +1,7 @@
-{{- $global_data := .Values.global }}
-{{- $account_data := .Values.global.account }}
-{{- $auth_data := $account_data.auth }}
-{{- $app_name := (include "module.auth.name" . ) }}
+{{- $global_data := .Values.global -}}
+{{- $account_data := .Values.global.account -}}
+{{- $auth_data := $account_data.auth -}}
+{{- $app_name := (include "module.auth.name" . ) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,11 +21,11 @@ spec:
   strategy:
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
-{{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
+    {{- if eq $global_data.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-{{- end }}
+    {{- end }}
   template:
     metadata:
       annotations:
@@ -33,7 +33,7 @@ spec:
       labels:
         {{- include "account.auth.labels" . | nindent 8 }}
     spec:
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if not (eq $global_data.repotype "public") }}
       imagePullSecrets:
         - name: {{ $global_data.imagePullSecrets.name }}-{{ $global_data.env | default "prod" }}
       {{- end }}
@@ -50,7 +50,7 @@ spec:
             - until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
               do echo waiting for Database; sleep 2; done;
           env:
-            {{- include "account.container_envs_db" . | nindent 12 }}
+            {{- include "account.container_envs_db" . | trim | nindent 12 }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
       containers:
@@ -68,19 +68,23 @@ spec:
               value: "{{ .Values.configPath }}/apple"
             {{- end }}
             {{- end }}
-          {{- include "account.container_envs_redis" . | nindent 12 }}
-          {{- include "account.container_envs_db" . | nindent 12 }}
+          {{- include "account.container_envs_redis" .  | trim | nindent 12 }}
+          {{- include "account.container_envs_db" .  | trim | nindent 12 }}
           ports:
             - name: {{ include "account.auth.portHttpName" . }}
               containerPort: {{ include "account.auth.portNumber" . }}
               protocol: {{ include "account.auth.portProtocol" . }}
+          {{- with $auth_data.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
               subPath: {{ .Values.configName }}
-            {{- if .Values.global.account.config.auth_providers.saml}}
-            {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
-            {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
+            {{- if $account_data.config.auth_providers.saml }}
+            {{- if $account_data.config.auth_providers.saml.google_saml }}
+            {{- if eq $account_data.config.auth_providers.saml.google_saml.enabled true }}
             - name: metadata-google
               mountPath: /opt/conf/google_metadata.xml
               subPath: google_metadata.xml
@@ -98,24 +102,23 @@ spec:
               subPath: apple
             {{- end }}
             {{- end }}
-          {{- include "account.auth.resources" . | indent 10 }}
       volumes:
         - name: {{ $app_name }}-config-volume
           configMap:
             name: {{ include "account.auth.configmap.name" . }}
-        {{- if .Values.global.account.config.auth_providers.saml}}
-        {{- if .Values.global.account.config.auth_providers.saml.google_saml}}
-        {{- if eq .Values.global.account.config.auth_providers.saml.google_saml.enabled true }}
+        {{- if $account_data.config.auth_providers.saml }}
+        {{- if $account_data.config.auth_providers.saml.google_saml }}
+        {{- if eq $account_data.config.auth_providers.saml.google_saml.enabled true }}
         - name: metadata-google
           secret:
-            secretName: {{ .Values.global.account.config.auth_providers.saml.google_saml.secret_name | default "metadata-google-secret" }}
+            secretName: {{ $account_data.config.auth_providers.saml.google_saml.secret_name | default "metadata-google-secret" }}
         {{- end }}
         {{- end }}
         {{- end }}
         {{- if $account_data.persistantVolumeClaimCreate }}
         - name: {{ $app_name }}-pvc
           persistentVolumeClaim:
-            claimName: {{ .Values.global.account.persistantVolumeClaimName }}
+            claimName: {{ $account_data.persistantVolumeClaimName }}
         {{- end }}
         {{- if $auth_data.auth_providers_keys }}
         {{- if $auth_data.auth_providers_keys.apple }}

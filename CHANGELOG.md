@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Chart 0.2.4 [SingleSpace 3.8.0] - 2024-05-28
+### Helm changes
+- New applications versions:
+    - auth - 3.8.0
+    - workspace - 3.8.0
+    - frontend - 3.8.0
+    - ingress - 0.1.2
+- Refactor resources in helm chart, resources moved to values.yaml file.
+- Updated code-style
+
+### Improvements / New Features
+
+#### 1. In the Licenses & Billing space, the super admin can:
+ - View the Workspace page and all the workspaces with their details: workspace name, owner name, license type and ID, license owner name, number of workspace users, workspace status, and creation date. 
+ - Upload the In-House license on their instance on the Upload license page of the Null Workspace.
+
+       Note: When uploading a license, you can compare the previous license details and the actual one's in the dialog that appears.
+
+#### 2. The workspace owner can configure the rules to invite users to their workspace:
+ - To invite or not to invite users in general 
+ - To allow all user domains 
+ - To specify allowed user domains 
+ - To specify prohibited user domains
+
+
 ## Chart 0.2.3 [SingleSpace 3.7.0] - 2024-05-07
 ### Helm changes
 - New applications versions:

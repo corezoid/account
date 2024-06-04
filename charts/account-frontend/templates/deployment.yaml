@@ -1,7 +1,7 @@
 {{- if eq .Values.global.account.frontend.enabled true }}
-{{- $global_data := .Values.global }}
-{{- $account_data := .Values.global.account }}
-{{- $auth_data := .Values.global.account.frontend }}
+{{- $global_data := .Values.global -}}
+{{- $account_data := $global_data.account -}}
+{{- $frontend_data := $account_data.frontend -}}
 {{- $app_name := (include "module.frontend.name" . ) }}
 apiVersion: apps/v1
 kind: Deployment
@@ -47,7 +47,10 @@ spec:
             - name: {{ include "account.frontend.portHttpName" . }}
               containerPort: {{ include "account.frontend.portNumber" . }}
               protocol: {{ include "account.frontend.portProtocol" . }}
-          {{- include "account.frontend.resources" . | indent 10 }}
+          {{- with $frontend_data.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config-nginx
               mountPath: /etc/nginx/nginx.conf

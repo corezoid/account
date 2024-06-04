@@ -199,122 +199,122 @@ global:
       #   client: "dev-sa"
       #   sync: true
       #   separator: "/"
-      auth_providers:
-        saml:
-          azure_saml:
-            enabled: false
-            name: Azure SAML
-            icon: https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico
-            idp_metadata: https://login.microsoftonline.com/875b8ebc-11a0-419f-a6a3-cbb7bae2222f/federationmetadata/2007-06/federationmetadata.xml?appid=1dd17d8d-a978-412b-8976-fa922091e8
-            idp_signs_metadata: false
-            userinfo_map:
-              login: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
-              email: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
-              name: http://schemas.microsoft.com/identity/claims/displayname
-        openid_connect:
-          google:
-            enabled: false
-            name: Google
-            client_id: 222222222222222
-            client_secret: 222222222222222
-            issuer: https://accounts.google.com
-            scopes:
-              - profile
-              - email
-            userinfo_map:
-              login: sub
-              photo: picture
-          apple:
-            enabled: false
-            name: Apple
-            client_id: com.corezoid.apple.signin
-            client_auth_type: jwt
-            client_auth_jwt:
-              header:
-                kid: 222222222222222
-              expire: 60
-              claims:
-                iss: 222222222222222
-                aud: https://appleid.apple.com
-                sub: com.corezoid.apple.signin
-              sign_key_file: "${AUTH_APPLE_SECRET_PATH}"
-            issuer: https://appleid.apple.com
-            scopes:
-              - email
-              - name
-            userinfo_source: id_token
-            url_extension:
-              response_mode: form_post
-            userinfo_map:
-              login: sub
-          keycloak:
-            enabled: false
-            name: Keycloak
-            icon: https://www.keycloak.org/resources/images/logo.svg
-            client_id: dev-sa
-            client_secret: 222222222222222
-            client_auth_type: basic
-            issuer: https://keycloak.dev.corezoid.com/auth/realms/master
-            scopes:
-              - openid
-            userinfo_map:
-              login: sub
-          microsoft_online:
-            enabled: false
-            name: Microsoft MT Online
-            icon: https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico
-            client_id: 222222222222222
-            client_secret: 222222222222222
-            client_auth_type: basic
-            issuer: https://login.microsoftonline.com/875b8ebc-11a0-419f-a6a3-cbb7bae2222f/v2.0
-            scopes:
-              - openid
-            userinfo_map:
-              login: sub
-        oauth2:
-          cloud_account:
-            enabled: false
-            name: Cloud Account
-            client_id: 222222222222222
-            client_secret: 222222222222222
-            authorization_endpoint: https://account.pre.corezoid.com/oauth2/authorize
-            token_endpoint: https://account.pre.corezoid.com/oauth2/token
-            userinfo_endpoint: https://account.pre.corezoid.com/oauth2/userinfo
-            scopes:
-              - single_account:account.read
-            userinfo_map:
-              login: login
-              photo: user_photo
-              email: login
-          github:
-            enabled: false
-            name: Github
-            client_id: 222222222222222
-            client_secret: 222222222222222
-            authorization_endpoint: https://github.com/login/oauth/authorize
-            token_endpoint: https://github.com/login/oauth/access_token
-            userinfo_endpoint: https://api.github.com/user
-            scopes:
-              - read:user
-              - user:email
-            userinfo_map:
-              login: login
-              email: dddd
-              photo: avatar_url
-          facebook:
-            enabled: false
-            name: Facebook
-            client_id: 222222222222222
-            client_secret: 222222222222222
-            authorization_endpoint: https://www.facebook.com/v10.0/dialog/oauth
-            token_endpoint: https://graph.facebook.com/v10.0/oauth/access_token
-            userinfo_endpoint: https://graph.facebook.com/v10.0/me?fields=id,name,email,picture&access_token=
-            scopes:
-              - public_profile
-              - email
-            userinfo_map:
-              login: id
-              photo: picture
+      # auth_providers:
+      #   saml:
+      #     azure_saml:
+      #       enabled: false
+      #       name: Azure SAML
+      #       icon: https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico
+      #       idp_metadata: https://login.microsoftonline.com/875b8ebc-11a0-419f-a6a3-cbb7bae2222f/federationmetadata/2007-06/federationmetadata.xml?appid=1dd17d8d-a978-412b-8976-fa922091e8
+      #       idp_signs_metadata: false
+      #       userinfo_map:
+      #         login: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
+      #         email: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
+      #         name: http://schemas.microsoft.com/identity/claims/displayname
+      #   openid_connect:
+      #     google:
+      #       enabled: false
+      #       name: Google
+      #       client_id: 222222222222222
+      #       client_secret: 222222222222222
+      #       issuer: https://accounts.google.com
+      #       scopes:
+      #         - profile
+      #         - email
+      #       userinfo_map:
+      #         login: sub
+      #         photo: picture
+      #     apple:
+      #       enabled: false
+      #       name: Apple
+      #       client_id: com.corezoid.apple.signin
+      #       client_auth_type: jwt
+      #       client_auth_jwt:
+      #         header:
+      #           kid: 222222222222222
+      #         expire: 60
+      #         claims:
+      #           iss: 222222222222222
+      #           aud: https://appleid.apple.com
+      #           sub: com.corezoid.apple.signin
+      #         sign_key_file: "${AUTH_APPLE_SECRET_PATH}"
+      #       issuer: https://appleid.apple.com
+      #       scopes:
+      #         - email
+      #         - name
+      #       userinfo_source: id_token
+      #       url_extension:
+      #         response_mode: form_post
+      #       userinfo_map:
+      #         login: sub
+      #     keycloak:
+      #       enabled: false
+      #       name: Keycloak
+      #       icon: https://www.keycloak.org/resources/images/logo.svg
+      #       client_id: dev-sa
+      #       client_secret: 222222222222222
+      #       client_auth_type: basic
+      #       issuer: https://keycloak.dev.corezoid.com/auth/realms/master
+      #       scopes:
+      #         - openid
+      #       userinfo_map:
+      #         login: sub
+      #     microsoft_online:
+      #       enabled: false
+      #       name: Microsoft MT Online
+      #       icon: https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico
+      #       client_id: 222222222222222
+      #       client_secret: 222222222222222
+      #       client_auth_type: basic
+      #       issuer: https://login.microsoftonline.com/875b8ebc-11a0-419f-a6a3-cbb7bae2222f/v2.0
+      #       scopes:
+      #         - openid
+      #       userinfo_map:
+      #         login: sub
+      #   oauth2:
+      #     cloud_account:
+      #       enabled: false
+      #       name: Cloud Account
+      #       client_id: 222222222222222
+      #       client_secret: 222222222222222
+      #       authorization_endpoint: https://account.pre.corezoid.com/oauth2/authorize
+      #       token_endpoint: https://account.pre.corezoid.com/oauth2/token
+      #       userinfo_endpoint: https://account.pre.corezoid.com/oauth2/userinfo
+      #       scopes:
+      #         - single_account:account.read
+      #       userinfo_map:
+      #         login: login
+      #         photo: user_photo
+      #         email: login
+      #     github:
+      #       enabled: false
+      #       name: Github
+      #       client_id: 222222222222222
+      #       client_secret: 222222222222222
+      #       authorization_endpoint: https://github.com/login/oauth/authorize
+      #       token_endpoint: https://github.com/login/oauth/access_token
+      #       userinfo_endpoint: https://api.github.com/user
+      #       scopes:
+      #         - read:user
+      #         - user:email
+      #       userinfo_map:
+      #         login: login
+      #         email: dddd
+      #         photo: avatar_url
+      #     facebook:
+      #       enabled: false
+      #       name: Facebook
+      #       client_id: 222222222222222
+      #       client_secret: 222222222222222
+      #       authorization_endpoint: https://www.facebook.com/v10.0/dialog/oauth
+      #       token_endpoint: https://graph.facebook.com/v10.0/oauth/access_token
+      #       userinfo_endpoint: https://graph.facebook.com/v10.0/me?fields=id,name,email,picture&access_token=
+      #       scopes:
+      #         - public_profile
+      #         - email
+      #       userinfo_map:
+      #         login: id
+      #         photo: picture
     affinity: {}
     # nodeAffinity:
     #   requiredDuringSchedulingIgnoredDuringExecution:

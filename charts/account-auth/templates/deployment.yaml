@@ -119,6 +119,7 @@ spec:
         - name: {{ $app_name }}-pvc
           persistentVolumeClaim:
             claimName: {{ $account_data.persistantVolumeClaimName }}
+            readOnly: false
         {{- end }}
         {{- if $auth_data.auth_providers_keys }}
         {{- if $auth_data.auth_providers_keys.apple }}

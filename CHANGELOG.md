@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Chart 0.2.5 [SingleSpace 3.9.0] - 2024-06-12
+### Helm changes
+- New applications versions:
+    - auth - 3.9.0
+    - workspace - 3.9.0
+    - frontend - 3.9.0
+    - ingress - 0.1.2
+
+### Improvements / New Features
+
+#### 1. In the workspace dropdown list, you can see the list of workspaces you have access to and your roles in each workspace.
+
+Note:
+
+        If you have multiple roles in one workspace, they appear in a row below the workspace name.
+        If the workspace is blocked, it has a red dot next to its name.
+
+#### 2. On the Details tab of your paid online Cloud license, you can add another card details by clicking Change next to Payment method.
+
+#### 3. The users with the Super admin role, can view:
+- All the licenses and their details of all the users of the environment, filter them by Statuses (Active, Blocked, Cancelled, and Pending) and Ownership (Only my licenses), and edit license attribute details (for example, change RPS or cancel the license) of the other user paid license.
+- All the payments and their details of all the users of the environment and filter them by Statuses (Paid, Failed, Pending).
+
+#### 4. The users blocked due to the end of the license trial period can unblock themselves by passing the authorization process and logging in to the application again: Now, the free license don't have the expiration date.
+
+
 ## Chart 0.2.4 [SingleSpace 3.8.0] - 2024-05-28
 ### Helm changes
 - New applications versions:

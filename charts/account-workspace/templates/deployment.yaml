@@ -88,6 +88,7 @@ spec:
         - name: {{ $app_name }}-pvc
           persistentVolumeClaim:
             claimName: {{ $account_data.persistantVolumeClaimName }}
+            readOnly: false
         {{- end }}
       {{- with $account_data.nodeSelector }}
       nodeSelector:

@@ -32,9 +32,11 @@ spec:
       labels:
         {{- include "account.frontend.labels" . | nindent 8 }}
     spec:
-      {{- if not (eq .Values.global.repotype "public") }}
+      {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ .Values.global.imagePullSecrets.name }}-{{ .Values.global.env | default "prod" }}
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
       {{- end }}
       serviceAccountName: {{- include "account.frontend.serviceaccount.name" . | nindent 8 }}
       securityContext:

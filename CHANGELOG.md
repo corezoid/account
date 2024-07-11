@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.8 [SingleSpace 3.10.0] - 2024-07-08
+### Helm changes
+- New applications versions:
+    - auth - 3.10.0
+    - workspace - 3.10.0
+    - frontend - 3.10.0
+    - ingress - 0.1.2
+
+### Improvements / New Features
+
+#### 1. The Webhooks page has been added to Settings where ** you can create, edit, manage, and delete webhooks.
+
+    Note: You can manage webhooks if you have the Owner, Admin, Member or custom role and the Manage all webhooks permission.
+
+#### 2. When you are transferring your workspace ownership to other user:
+- You can cancel the ownership transfer before the selected user accepts it.
+- The selected user can accept or decline the ownership transfer.
+- The ownership transfer is canceled if the selected user is blocked or deleted.
+
+
+## Chart 0.2.7 [SingleSpace 3.9.0] - 2024-06-26
+### Helm changes
+- Applications versions:
+    - auth - 3.9.0
+    - workspace - 3.9.0
+    - frontend - 3.9.0
+    - ingress - 0.1.2
+- Changes for imagePullSecrets creation
+```
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+```
+- Remove hardcode `resources` from `values.yaml` file
 
 ## Chart 0.2.5 [SingleSpace 3.9.0] - 2024-06-12
 ### Helm changes

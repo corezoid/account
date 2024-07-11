@@ -101,13 +101,14 @@ global:
       enabled: true
       minReplicas: 1
       maxReplicas: 10
-    resources:
-      limits:
-        cpu: 0
-        memory: 500Mi
-      requests:
-        cpu: 100m
-        memory: 200Mi
+    resources: {}
+    # resources:
+    #   limits:
+    #     cpu: 0
+    #     memory: 500Mi
+    #   requests:
+    #     cpu: 100m
+    #     memory: 200Mi
     service:
       type: ClusterIP
     frontend:
@@ -403,12 +404,13 @@ global:
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
-      resources:
-        limits:
-          memory: 800Mi
-        requests:
-          cpu: 200m
-          memory: 400Mi
+      resources: {}
+      # resources:
+      #   limits:
+      #     memory: 800Mi
+      #   requests:
+      #     cpu: 200m
+      #     memory: 400Mi
       # Specifies whether a service account should be created
       serviceAccount:
         create: false
@@ -422,36 +424,17 @@ global:
       port: 8080
       autoscaling:
         enabled: true
-        minReplicas: 1
-        maxReplicas: 10
-        targetCPUUtilizationPercentage: 80
-        targetMemoryUtilizationPercentage: 80
-      resources:
-        limits:
-          memory: 800Mi
-        requests:
-          cpu: 200m
-          memory: 400Mi
-      # Specifies whether a service account should be created
-      serviceAccount:
-        create: true
-        # You can provide your serviceAccount name to use, also set create to false
-        # name: ""
-        annotations: {}
-    auth:
-      port: 8080
-      autoscaling:
-        enabled: true
         minReplicas: 2
         maxReplicas: 10
         targetCPUUtilizationPercentage: 80
         targetMemoryUtilizationPercentage: 80
-      resources:
-        limits:
-          memory: 800Mi
-        requests:
-          cpu: 100m
-          memory: 400Mi
+      resources: {}
+      # resources:
+      #   limits:
+      #     memory: 800Mi
+      #   requests:
+      #     cpu: 100m
+      #     memory: 400Mi
       # Specifies whether a service account should be created
       serviceAccount:
         create: false

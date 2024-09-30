@@ -54,6 +54,13 @@ application: {{ include "module.auth.name" . }}
 {{- end -}}
 {{- end }}
 
+{{/*
+Set metrics port
+*/}}
+{{- define "account.auth.portMetricsNumber" -}}
+{{ .Values.global.account.auth.portMetrics | default 9100 }}
+{{- end }}
+
 {{- define "account.auth.portHttpName" -}}
 http
 {{- end }}
@@ -71,7 +78,7 @@ TCP
 Image url
 */}}
 {{- define "account.auth.imageUrl" -}}
-{{ .Values.image.registry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.account.auth.tag | default .Chart.AppVersion }}
+{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.account.auth.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{- define "account.auth.annotations" -}}

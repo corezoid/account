@@ -8,6 +8,21 @@ global:
   env: "prod"
   serviceMonitor:
     enabled: false
+  # Dashboard configuration for deploying Grafana dashboards for Account
+  dashboards:
+    # -- If enabled, Grafana dashboards are deployed
+    enabled: false
+    # -- Annotations to add to the Grafana dashboard ConfigMap
+    # Note: If using with middleware observability platform, annotation should be provided to place dashboards in proper folder.
+    # From observability chart, value from grafana.sidecar.dashboards.folderAnnotation is a
+    # "key" for annotation, and value is a name of folder which will be created in Grafana UI for Account dashboards.
+    annotations: {}
+    # -- Labels to add to the Grafana dashboard ConfigMap
+    # Note: If using with middleware observability platform, labels should be provided to discovery
+    # dashboards and upload them to grafana. From observability chart, value from grafana.sidecar.dashboards.label is a key,
+    # and grafana.sidecar.dashboards.labelValue is a value for that label.
+    # So, label should look like grafana.sidecar.dashboards.label:grafana.sidecar.dashboards.labelValue
+    labels: {}
   # First login password will be changed during first login.
   init_admin_password: 111
   #######  PostgreSQL  ########
@@ -96,6 +111,9 @@ global:
     persistantVolumeClaimName: "workspace-pvc"
     persistantVolumeClaimCreate: true
     persistantVolumeClaimShareDir: "avatars"
+    content_security_policy:
+      urls:
+        # - https://doc.corezoid.com
     email_confirm: true
     autoscaling:
       enabled: true
@@ -388,6 +406,9 @@ global:
     #               - arm64
     workspace:
       port: 8080
+      ##  @param .Values.global.account.workspace.portMetrics Define port for metrics, default - 9100.
+      ## Will set in config file if .Values.global.serviceMonitor.enable set true
+      portMetrics: 9100
       persistantVolumeClaimName: "workspace-pvc"
       persistantVolumeClaimCreate: true
       config:
@@ -422,6 +443,9 @@ global:
           eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/mw-dev-workspace-1-euw1-stripe-dev-role
     auth:
       port: 8080
+      ##  @param .Values.global.account.auth.portMetrics Define port for metrics, default - 9100.
+      ## Will set in config file if .Values.global.serviceMonitor.enable set true
+      portMetrics: 9100
       autoscaling:
         enabled: true
         minReplicas: 2

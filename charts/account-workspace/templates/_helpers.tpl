@@ -66,12 +66,18 @@ application: {{ include "module.workspace.name" . }}
 {{- include "module.workspace.name" . }}-cpu-autoscale
 {{- end -}}
 
+{{/*
+Set metrics port
+*/}}
+{{- define "account.workspace.portMetricsNumber" -}}
+{{ .Values.global.account.workspace.portMetrics | default 9100 }}
+{{- end }}
 
 {{/*
 Image url
 */}}
 {{- define "account.workspace.imageUrl" -}}
-{{ .Values.image.registry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.account.workspace.tag | default .Chart.AppVersion }}
+{{ .Values.global.imageRegistry }}/{{ .Values.global.repotype | default "public" }}/{{ .Values.image.repository }}:{{ .Values.global.account.workspace.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{- define "account.workspace.annotations" -}}

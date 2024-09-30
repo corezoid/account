@@ -76,6 +76,11 @@ spec:
             - name: {{ include "account.auth.portHttpName" . }}
               containerPort: {{ include "account.auth.portNumber" . }}
               protocol: {{ include "account.auth.portProtocol" . }}
+            {{- if .Values.global.serviceMonitor }}
+            - name: metrics
+              containerPort: {{ include "account.auth.portMetricsNumber" . }}
+              protocol: {{ include "account.auth.portProtocol" . }}
+            {{- end }}
           {{- with $auth_data.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.11 [SingleSpace 3.12.5] - 2024-09-30.
+### Helm changes
+- Applications versions:
+  - auth - 3.12.5
+  - workspace - 3.12.5
+  - frontend - 3.12.4
+  - ingress - 0.1.2
+- Add parameter `content_security_policy` in values file.
+- The minimum number of characters in the password has been increased
+
+
+## Chart 0.2.10 [SingleSpace 3.10.0] - 2024-07-31.
+### Helm changes
+- Applications versions:
+    - auth - 3.10.6
+    - workspace - 3.10.6
+    - frontend - 3.10.0
+    - ingress - 0.1.2
+- Add parameter `portMetrics` in values file, using for define port for metrics
+- Add monitoring for `auth`
+- Update monitoring manifest for `workspace`
+
+## Chart 0.2.9 [SingleSpace 3.10.0] - 2024-07-29.
+### Helm changes
+- New applications versions:
+    - auth - 3.10.6
+    - workspace - 3.10.6
+    - frontend - 3.10.0
+    - ingress - 0.1.2
+- Remove hardcode registry domain from sub-charts. Switch to `{{ .Values.global.imageRegistry }}`
+
 ## Chart 0.2.8 [SingleSpace 3.10.0] - 2024-07-08
 ### Helm changes
 - New applications versions:

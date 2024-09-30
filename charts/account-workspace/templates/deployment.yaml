@@ -70,6 +70,11 @@ spec:
             - name: {{ include "account.workspace.portHttpName" . }}
               containerPort: {{ include "account.workspace.portNumber" . }}
               protocol: {{ include "account.workspace.portProtocol" . }}
+            {{- if .Values.global.serviceMonitor }}
+            - name: metrics
+              containerPort: {{ include "account.workspace.portMetricsNumber" . }}
+              protocol: {{ include "account.workspace.portProtocol" . }}
+            {{- end }}
           {{- with $workspace_data.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

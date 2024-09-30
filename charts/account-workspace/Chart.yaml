@@ -2,5 +2,5 @@ apiVersion: v2
 name: account-workspace
 description: A Helm chart for WorkSpace
 type: application
-version: 0.1.11
-appVersion: 3.10.0
+version: 0.1.15
+appVersion: 3.12.5

@@ -5,3 +5,19 @@ image:
 
 configPath: "/opt/conf"
 configName: "config.yml"
+appAuthLivenessPath: "/liveness"
+appAuthReadinessPath: "/readiness"
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3

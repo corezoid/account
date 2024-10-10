@@ -87,3 +87,35 @@ Image url
 {{- end }}
 {{- end }}
 
+
+{{/*
+Liveness
+*/}}
+{{- define "account.auth.liveness" -}}
+livenessProbe:
+  httpGet:
+    scheme: HTTP
+    path: {{ .Values.appAuthLivenessPath }}
+    port: {{ include "account.auth.portHttpName" . }}
+  initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+  periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+  timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+  successThreshold: {{ .Values.livenessProbe.successThreshold }}
+  failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+{{- end }}
+
+{{/*
+Readiness
+*/}}
+{{- define "account.auth.readiness" -}}
+readinessProbe:
+  httpGet:
+    scheme: HTTP
+    path: {{ .Values.appAuthReadinessPath }}
+    port: {{ include "account.auth.portHttpName" . }}
+  initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+  periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+  timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+  successThreshold: {{ .Values.readinessProbe.successThreshold }}
+  failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+{{- end }}

@@ -81,6 +81,8 @@ spec:
               containerPort: {{ include "account.auth.portMetricsNumber" . }}
               protocol: {{ include "account.auth.portProtocol" . }}
             {{- end }}
+          {{- include "account.auth.liveness" . | nindent 10 }}
+          {{- include "account.auth.readiness" . | nindent 10 }}
           {{- with $auth_data.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

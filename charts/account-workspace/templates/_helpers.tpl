@@ -55,7 +55,7 @@ application: {{ include "module.workspace.name" . }}
 {{- end }}
 
 {{- define "account.workspace.portHttpName" -}}
-{{- printf "%s" "http" }}
+http
 {{- end }}
 
 {{- define "account.workspace.portProtocol" -}}
@@ -87,31 +87,33 @@ Image url
 {{- end }}
 
 {{/*
+Liveness
+*/}}
+{{- define "account.workspace.liveness" -}}
+livenessProbe:
+  httpGet:
+    scheme: HTTP
+    path: {{ .Values.appAuthLivenessPath }}
+    port: {{ include "account.workspace.portHttpName" . }}
+  initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+  periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+  timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+  successThreshold: {{ .Values.livenessProbe.successThreshold }}
+  failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+{{- end }}
+
+{{/*
 Readiness
 */}}
 {{- define "account.workspace.readiness" -}}
 readinessProbe:
   httpGet:
     scheme: HTTP
-    path: /api/sa/1.0/check/readiness
-    port: {{ .Values.global.account.workspace.port }}
-  initialDelaySeconds: 10
-  periodSeconds: 5
-  timeoutSeconds: 5
-  successThreshold: 1
-  failureThreshold: 3
-{{- end }}
-
-{{/*
-Liveness
-*/}}
-{{- define "account.workspace.liveness" -}}
-livenessProbe:
-  tcpSocket:
-    port: {{ .Values.global.account.workspace.port }}
-  initialDelaySeconds: 15
-  periodSeconds: 10
-  timeoutSeconds: 5
-  successThreshold: 1
-  failureThreshold: 3
+    path: {{ .Values.appAuthReadinessPath }}
+    port: {{ include "account.workspace.portHttpName" . }}
+  initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+  periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+  timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+  successThreshold: {{ .Values.readinessProbe.successThreshold }}
+  failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
 {{- end }}

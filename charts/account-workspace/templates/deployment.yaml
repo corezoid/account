@@ -75,6 +75,8 @@ spec:
               containerPort: {{ include "account.workspace.portMetricsNumber" . }}
               protocol: {{ include "account.workspace.portProtocol" . }}
             {{- end }}
+          {{- include "account.workspace.liveness" . | nindent 10 }}
+          {{- include "account.workspace.readiness" . | nindent 10 }}
           {{- with $workspace_data.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

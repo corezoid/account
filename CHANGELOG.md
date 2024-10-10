@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.13 [SingleSpace 3.13.0] - 2024-10-10.
+### Helm changes
+- Applications versions:
+  - auth - 3.13.1
+  - workspace - 3.13.1
+  - frontend - 3.13.0
+  - ingress - 0.1.2
+- Add `liveness` and `readiness` for `auth` and `workspace` applications
+
 
 ## Chart 0.2.12 [SingleSpace 3.13.0] - 2024-10-08.
 ### Helm changes
@@ -13,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - workspace - 3.13.1
   - frontend - 3.13.0
   - ingress - 0.1.2
-- cookie_same_site attribute added to the config (optional)
-- new imageRegistry url
+- Added `cookie_same_site` attribute to the config (optional)
+- New `imageRegistry` url
 
 ### Improvements / New Features
 #### 1. client APIs added: CRUD operations for groups and API keys

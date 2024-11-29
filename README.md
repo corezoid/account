@@ -25,9 +25,9 @@ for tbl in `psql -h single_account_database_host -p 5432 -qAt -c "select table_n
 # Install
 
 
-```git clone https://github.com/corezoid/singlespace.git```
+```git clone https://github.com/corezoid/account.git```
 
-```cd singlespace```
+```cd account```
 
 
 Create namespace if need:

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.16 [SingleSpace 3.15.0] - 2024-11-29.
+### Helm changes
+- Applications versions:
+  - auth - 3.15.0
+  - workspace - 3.15.0
+  - frontend - 3.15.0
+  - ingress - 0.1.2
+- Bug fixes for the groups APIs
+- SSO authorization added
+
 ## Chart 0.2.15 [SingleSpace 3.14.0] - 2024-11-15.
 ### Helm changes
 - Applications versions:

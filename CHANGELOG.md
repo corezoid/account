@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.17 [SingleSpace 3.16.0] - 2024-12-19.
+### Helm changes
+- Applications versions:
+  - auth - 3.16.2
+  - workspace - 3.16.2
+  - frontend - 3.16.0
+  - ingress - 0.1.2
+- SSO authorization: added new type of mappers - const_links
+- Added client API for updating users online status
+- Public API: added new endpoint for updating list users in the group
+- Synchronization of user sessions between clients
+- Bug fixes ldap auth
+
+
 ## Chart 0.2.16 [SingleSpace 3.15.0] - 2024-11-29.
 ### Helm changes
 - Applications versions:

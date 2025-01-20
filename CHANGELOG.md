@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.18 [SingleSpace 3.17.0] - 2025-01-20.
+### Helm changes
+- Applications versions:
+  - auth - 3.17.1
+  - workspace - 3.17.1
+  - frontend - 3.17.0
+  - ingress - 0.1.2
+- Added support for oneApp mode.
+- Active-active configuration support.
+- state changes calculation fixed
+- Resolved various bugs and implemented stability improvements
+
+
 ## Chart 0.2.17 [SingleSpace 3.16.0] - 2024-12-19.
 ### Helm changes
 - Applications versions:

@@ -1,0 +1,16 @@
+{{- if and (hasKey .Values.global.account "valkey") (not (empty .Values.global.account.valkey)) }}
+{{- if .Values.global.account.valkey.use }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: account-valkey-service
+  labels:
+    {{- include "account.valkey.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.appPort }}
+    targetPort: {{ .Values.appPort }}
+  selector:
+    {{- include "account.valkey.labels" . | nindent 4 }}
+{{- end }}
+{{- end }}

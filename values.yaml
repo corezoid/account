@@ -75,7 +75,7 @@ global:
   imageInit:
     repository: hub.corezoid.com/hub.docker.com/library/alpine
     pullPolicy: IfNotPresent
-    tag: "3.20"
+    tag: "3.21"
   # imagePullSecrets:
   #   name: registry-secret
   deploymentStrategy:
@@ -174,6 +174,22 @@ global:
         data:
           host: "REDIS_HOST"
           port: "6379"
+          password: ""
+    ## @param global.account.valkey.use Enable ValKey single-node deployment
+    ## @param global.account.valkey.resources.limits.memory Maximum memory limit for ValKey pod
+    ## @param global.account.valkey.resources.requests.cpu Minimum CPU request for ValKey pod
+    ## @param global.account.valkey.resources.requests.memory Minimum memory request for ValKey pod
+    ## @param global.account.valkey.secret.data.password Password for ValKey authentication
+    valkey:
+      use: false
+      resources:
+        limits:
+          memory: 200Mi
+        requests:
+          cpu: 50m
+          memory: 100Mi
+      secret:
+        data:
           password: ""
     config:
       webhook:

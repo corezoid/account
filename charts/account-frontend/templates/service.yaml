@@ -1,4 +1,3 @@
-{{- if eq .Values.global.account.frontend.enabled true }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,4 +12,3 @@ spec:
       port: {{ include "account.frontend.portNumber" . }}
       targetPort: {{ include "account.frontend.portNumber" . }}
       protocol: {{ include "account.frontend.portProtocol" . }}
-{{- end }}

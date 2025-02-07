@@ -1,0 +1,71 @@
+{{- if and (hasKey .Values.global.account "valkey") (not (empty .Values.global.account.valkey)) }}
+{{- if .Values.global.account.valkey.use }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-valkey-deployment
+  labels:
+    {{- include "account.valkey.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "account.valkey.labels" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-valkey.yaml") . | sha256sum }}
+      labels:
+        {{- include "account.valkey.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $pullSecret := .Values.global.imagePullSecrets }}
+        - name: {{ $pullSecret }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: master
+        image: "{{ .Values.image.registry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        {{- with .Values.global.account.valkey.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "valkey-cli -h localhost ping"
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "valkey-cli -h localhost ping"
+          initialDelaySeconds: 20
+          periodSeconds: 3
+        ports:
+        - name: app
+          containerPort: {{ .Values.appPort }}
+          protocol : TCP
+        volumeMounts:
+          - name: valkeyconfig
+            mountPath: /usr/local/etc/valkey
+      volumes:
+        - name: valkeyconfig
+          configMap:
+            name: account-valkey-config
+      {{- with .Values.global.account.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.account.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

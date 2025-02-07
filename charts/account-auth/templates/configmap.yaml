@@ -1,5 +1,6 @@
 {{- $auth_config := .Values.global.account.auth }}
 {{- $global_config := .Values.global.account.config }}
+{{- if ne .Values.global.account.config.one_app true }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -34,3 +35,4 @@ data:
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DB}
 {{ $global_config | toYaml | trim | indent 4 }}
+{{- end }}

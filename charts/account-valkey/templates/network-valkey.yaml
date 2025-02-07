@@ -1,0 +1,29 @@
+{{- if and (hasKey .Values.global.account "valkey") (not (empty .Values.global.account.valkey)) }}
+{{- if .Values.global.account.valkey.use }}
+{{- if .Values.global.networkPolicy }}
+{{- if .Values.global.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: account-valkey-policy
+  labels:
+    {{- include "account.valkey.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      tier: {{ .Values.appName }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: account
+      ports:
+        - protocol: TCP
+          port: {{ .Values.appPort }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

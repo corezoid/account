@@ -39,6 +39,10 @@ imagePullSecrets:
 {{- printf "%s-%s" .Release.Name $sa_secret_redis.name | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
+{{- define "account.valkeySecretName" -}}
+{{- printf "%s-%s" .Release.Name "secret-valkey" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end -}}
+
 {{- define "account.auth_provider_secret_name" }}
 {{- printf "%s-%s" .Release.Name "auth-provider-secret" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end -}}

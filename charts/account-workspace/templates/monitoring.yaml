@@ -1,3 +1,4 @@
+{{- if .Values.global.account.config.one_app }}
 {{- if .Values.global.serviceMonitor -}}
 {{- if .Values.global.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
@@ -5,15 +6,16 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Values.appName }}
   labels:
-    {{- include "account.workspace.labels" . | nindent 4 }}
+    {{- include "account.auth.labels" . | nindent 4 }}
     {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "account.workspace.labels" . | nindent 6 }}
+      {{- include "account.auth.labels" . | nindent 6 }}
   endpoints:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ include "account.workspace.portMetricsNumber" . }}
+    targetPort: {{ include "account.auth.portMetricsNumber" . }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}
+{{- end }}

@@ -5,17 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Chart 0.2.20 [Account 3.XX.XX] - 2025-XX-XX.
+## Chart 0.2.20 [Account 3.18.0] - 2025-01-30.
 ### Helm changes
 - Applications versions:
-  - auth - 
-  - workspace - 
-  - frontend - 
+  - auth - 3.18.0
+  - workspace - 3.18.0
+  - frontend - 3.18.0
   - ingress - 0.1.2
   - valkey - 0.1.8
 - Add internal `valkey` set in values file.
 - Add flag for disable `auth` application.
 - Add resolve in initWat containers for database and redis.
+- Added an API to expire user passwords.
+- Fixed bugs related to user blocking.
+
 
 
 ## Chart 0.2.19 [Account 3.17.0] - 2025-01-21.

@@ -1,3 +1,4 @@
+{{- if ne .Values.global.account.config.one_app true }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,3 +13,4 @@ spec:
       port: {{ include "account.auth.portNumber" . }}
       targetPort: {{ include "account.auth.portNumber" . }}
       protocol: {{ include "account.auth.portProtocol" . }}
+{{- end }}

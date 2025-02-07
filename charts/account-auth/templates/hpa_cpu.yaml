@@ -1,4 +1,5 @@
 {{- $auth_data := .Values.global.account.auth }}
+{{- if ne .Values.global.account.config.one_app true }}
 {{- if $auth_data.autoscaling }}
 {{- if $auth_data.autoscaling.enabled }}
 {{- $autoscaling := $auth_data.autoscaling }}
@@ -18,5 +19,6 @@ spec:
   {{- if $autoscaling.targetCPUUtilizationPercentage }}
   targetCPUUtilizationPercentage: {{ $autoscaling.targetCPUUtilizationPercentage }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

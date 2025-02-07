@@ -1,6 +1,12 @@
 {{/*
 Common labels
 */}}
+
+{{- define "account.common.initWait.image" -}}
+{{ .Values.global.imageInit.repository }}:{{ .Values.global.imageInit.tag }}
+{{- end -}}
+
+
 {{- define "account.workspace.labels" -}}
 release: {{ .Release.Name | quote }}
 application: {{ include "module.workspace.name" . }}

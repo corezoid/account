@@ -1,0 +1,6 @@
+appName: valkey
+appPort: 6379
+image:
+  registry: docker.io/valkey
+  repository: /valkey
+  tag: "8.0-alpine"

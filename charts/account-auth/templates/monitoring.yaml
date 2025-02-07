@@ -1,3 +1,4 @@
+{{- if ne .Values.global.account.config.one_app true }}
 {{- if .Values.global.serviceMonitor -}}
 {{- if .Values.global.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
@@ -17,3 +18,4 @@ spec:
     interval: {{ .Values.prometheusInterval | default "15s" }}
 {{- end -}}
 {{- end -}}
+{{- end }}

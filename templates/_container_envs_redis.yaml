@@ -8,6 +8,21 @@
 {{- $sa_secret_redis = nil -}}
 {{- end -}}
 {{- $redis_secret_name := ( include "account.redisSecretName" . ) -}}
+{{- if and (hasKey .Values.global.account "valkey") (not (empty .Values.global.account.valkey)) }}
+{{- if .Values.global.account.valkey.use }}
+- name: REDIS_HOST
+  value: "account-valkey-service"
+- name: REDIS_PORT
+  value: "6379"
+- name: REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "account.valkeySecretName" . }}
+      key: password
+- name: REDIS_DB
+  value: "0"
+{{- end }}
+{{- else }}
 - name: REDIS_HOST
   valueFrom:
     secretKeyRef:
@@ -55,3 +70,4 @@
       key: password_cache
 {{- end }}
 {{- end -}}
+{{- end }}

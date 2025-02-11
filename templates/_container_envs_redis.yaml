@@ -1,4 +1,5 @@
 {{- define "account.container_envs_redis" -}}
+
 {{- $sa_secret_redis := "" -}}
 {{- if .Values.global.account.redis -}}
 {{- $sa_secret_redis = .Values.global.account.redis.secret -}}
@@ -7,8 +8,11 @@
 {{- else -}}
 {{- $sa_secret_redis = nil -}}
 {{- end -}}
+
 {{- $redis_secret_name := ( include "account.redisSecretName" . ) -}}
+
 {{- if and (hasKey .Values.global.account "valkey") (not (empty .Values.global.account.valkey)) }}
+
 {{- if .Values.global.account.valkey.use }}
 - name: REDIS_HOST
   value: "account-valkey-service"
@@ -22,7 +26,10 @@
 - name: REDIS_DB
   value: "0"
 {{- end }}
-{{- else }}
+
+{{- end }}
+
+{{- if or (not .Values.global.account.valkey.use) (not (hasKey .Values.global.account "valkey")) }}
 - name: REDIS_HOST
   valueFrom:
     secretKeyRef:
@@ -38,6 +45,7 @@
     secretKeyRef:
       name: {{ $redis_secret_name }}
       key: password
+
 {{- if $sa_secret_redis.database }}
 - name: REDIS_DB
   valueFrom:
@@ -48,6 +56,7 @@
 - name: REDIS_DB
   value: "11"
 {{- end }}
+
 {{- if $sa_secret_redis.host_cache }}
 - name: REDIS_HOST_CACHE
   valueFrom:
@@ -55,6 +64,7 @@
       name: {{ $redis_secret_name }}
       key: host_cache
 {{- end }}
+
 {{- if $sa_secret_redis.port_cache }}
 - name: REDIS_PORT_CACHE
   valueFrom:
@@ -62,6 +72,7 @@
       name: {{ $redis_secret_name }}
       key: port_cache
 {{- end }}
+
 {{- if $sa_secret_redis.password_cache }}
 - name: REDIS_PASSWORD_CACHE
   valueFrom:
@@ -69,5 +80,7 @@
       name: {{ $redis_secret_name }}
       key: password_cache
 {{- end }}
-{{- end -}}
+
+{{- end }}
+
 {{- end }}

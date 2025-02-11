@@ -45,18 +45,43 @@ spec:
       securityContext:
         {{- toYaml $account_data.podSecurityContext | nindent 8 }}
       initContainers:
-        - name: init-wait-main-postgresql
-          image: "{{ $global_data.imageInit.repository }}:{{ $global_data.imageInit.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: IfNotPresent
-          command:
-            - sh
-            - -c
-            - until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
-              do echo waiting for Database; sleep 2; done;
+        - name: init-wait-database-resolve
+          image: {{ include "account.common.initWait.image" . }}
+          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
+          command: ["sh"]
+          args:
+            - "-c"
+            - |
+              if ! echo ${POSTGRES_DBHOST} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+                until IP=$(nslookup ${POSTGRES_DBHOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
+                  echo "Waiting for Database IP resolution";
+                  sleep 2;
+                done
+              else
+                echo "${POSTGRES_DBHOST} is already an IP address, skipping resolution.";
+              fi
           env:
             {{- include "account.container_envs_db" . | trim | nindent 12 }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
+
+        - name: init-wait-database-port
+          image: {{ include "account.common.initWait.image" . }}
+          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
+          command: ['sh']
+          args:
+            - "-c"
+            - |
+              until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
+              do
+                echo "Waiting for Database port available";
+                sleep 2;
+              done;
+          env:
+            {{- include "account.container_envs_db" . | trim | nindent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+
         - name: init-wait-redis-resolve
           image: {{ include "account.common.initWait.image" . }}
           imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}

@@ -44,6 +44,7 @@ spec:
       serviceAccountName: {{- include "account.auth.serviceaccount.name" . | nindent 8 }}
       securityContext:
         {{- toYaml $account_data.podSecurityContext | nindent 8 }}
+      terminationGracePeriodSeconds: {{ $auth_data.terminationGracePeriodSeconds | default 60 }}
       initContainers:
         - name: init-wait-database-resolve
           image: {{ include "account.common.initWait.image" . }}

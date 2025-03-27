@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## Chart 0.2.22 [Account 3.19.0] - 2025-03-18.
+### Helm changes
+- Applications versions:
+  - auth - 3.19.0
+  - workspace - 3.19.0
+  - frontend - 3.19.0
+  - ingress - 0.1.2
+  - valkey - 0.1.8
+
+### New Features
+ - Enable the ability to forcibly turn on 2FA in the environment (Backend & Frontend)
+ - Create an API to retrieve the 2FA status of a user
+ - Add the option to specify the authentication provider (SSO) as hidden
+
+### Enhancements
+ - Upgrade React library version and related dependencies
+ - Improve signup password validation rules view
+ - Improve display error on UI when confirming registration under another account
+ - Optimize requests for `/client/api/1/licenses/workspaces/{id}` and `/client/api/1/licenses/users/{id}`
+ - The order of permissions in the role matrix and the API key list has changed
+
+### Bug Fixes
+ - Resolve user session timeout issue
+ - Fix logout issue
+ - Fix dashboard view
+ - Solve lint issues
+
+### Security & API Changes
+ - Preserve settings field in API requests when updating workspaces
+ - Support `workspace_id` parameter in API for debiting transactions
+ - Analyze the need for "public" API for frontend and remove unnecessary usage
+
+
 ## Chart 0.2.21 [Account 3.18.0] - 2025-02-11.
 ### Helm changes
 - Applications versions:

@@ -1,3 +1,4 @@
+{{- if and .Values.global.account.frontend.serviceAccount .Values.global.account.frontend.serviceAccount.create }}
 apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
 kind: Role
 metadata:
@@ -27,9 +28,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ include "account.frontend.serviceaccount.name" . }}
-  {{- if .Values.global.account.frontend.serviceAccount }}
-  {{- with .Values.global.account.frontend.serviceAccount.annotations }}
+  {{- if .Values.global.account.frontend.serviceAccount.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml .Values.global.account.frontend.serviceAccount.annotations | nindent 4 }}
   {{- end }}
-  {{- end }}
+{{- end }}

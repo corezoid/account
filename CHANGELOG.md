@@ -5,8 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Chart 0.2.23 [Account 3.19.1] - 2025-04-22.
+### Helm changes
+- Applications versions:
+  - auth - 3.19.1
+  - workspace - 3.19.1
+  - frontend - 3.19.1
+  - ingress - 0.1.2
+  - valkey - 0.1.8
+- Refactored init containers in `account-auth` and `account-workspace` subcharts to use reusable templates
+- Added initWait container for checking if database exists.
+- Added liveness and readiness probes to account-frontend deployment
+- Update local `valkey` up to `8.1` version.
+- Improved `account-auth` subchart:
+  - Enhanced Chart.yaml with better description, keywords, and maintainer information
+  - Updated values.yaml with improved documentation and default resource configurations
+  - Upgraded HPA to autoscaling/v2 API with support for memory metrics and scaling policies
+  - Added pod anti-affinity rules for better distribution across nodes
+  - Improved service configuration with support for different service types and annotations
+  - Enhanced monitoring configuration with better metric collection options
+  - Added lifecycle hooks for graceful termination
+  - Improved RBAC documentation and added standard Kubernetes labels
+- Improved `account-workspace` subchart:
+  - Enhanced Chart.yaml with better description, keywords, and maintainer information
+  - Updated values.yaml with improved documentation and default resource configurations
+  - Upgraded HPA to autoscaling/v2 API with support for memory metrics and scaling policies
+  - Added pod anti-affinity rules for better distribution across nodes
+  - Improved service configuration with support for different service types and annotations
+  - Fixed monitoring template with correct labels and enhanced configuration
+  - Added lifecycle hooks for graceful termination
+  - Improved RBAC with better labels and documentation
 
-## Chart 0.2.22 [Account 3.19.0] - 2025-03-18.
+
+## Chart 0.2.22 [Account 3.19.0] - 2025-03-26.
 ### Helm changes
 - Applications versions:
   - auth - 3.19.0
@@ -14,10 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - frontend - 3.19.0
   - ingress - 0.1.2
   - valkey - 0.1.8
+- Added condition to check if `auth_providers` exists before accessing `auth_providers.saml`
+- Added condition for creating `ServiceAccount`, Role, and RoleBinding based on `serviceAccount.create` value
+- Added condition to check if `imagePullSecrets` exists before accessing `imagePullSecrets.name`
 
 ### New Features
- - Enable the ability to forcibly turn on 2FA in the environment (Backend & Frontend)
- - Create an API to retrieve the 2FA status of a user
+ - Enable the ability to forcibly turn on `2FA` in the environment (Backend & Frontend)
+ - Create an API to retrieve the `2FA` status of a user
  - Add the option to specify the authentication provider (SSO) as hidden
 
 ### Enhancements
@@ -266,15 +300,15 @@ Note:
 ### Improvements / New Features
 
 #### 1. In the Licenses & Billing space, the super admin can:
- - View the Workspace page and all the workspaces with their details: workspace name, owner name, license type and ID, license owner name, number of workspace users, workspace status, and creation date. 
+ - View the Workspace page and all the workspaces with their details: workspace name, owner name, license type and ID, license owner name, number of workspace users, workspace status, and creation date.
  - Upload the In-House license on their instance on the Upload license page of the Null Workspace.
 
        Note: When uploading a license, you can compare the previous license details and the actual one's in the dialog that appears.
 
 #### 2. The workspace owner can configure the rules to invite users to their workspace:
- - To invite or not to invite users in general 
- - To allow all user domains 
- - To specify allowed user domains 
+ - To invite or not to invite users in general
+ - To allow all user domains
+ - To specify allowed user domains
  - To specify prohibited user domains
 
 
@@ -287,7 +321,7 @@ Note:
     - ingress - 0.1.2
 
 ### Improvements / New Features
-- User migrations 
+- User migrations
 - Bug fix sql migration
 - When you turn on the Enable Two-factor authentication toggle on the Profile page, the QR codes to upload the authentication application for Android and iOS appear on the step 2.
 - When you buy a license on the Simulator.Company website, you can buy extra state changes by clicking Buy more on the Details tab of the license page.
@@ -324,13 +358,13 @@ Note:
 The following features have been added and improved:
 
 #### 1. The password history has been added: you have to change your password after a specified period of time, and you cannot reuse any of your last 10 passwords.
-        Note: This refers to those users who have registered by entering a username and password and not entered by using Google account. 
+        Note: This refers to those users who have registered by entering a username and password and not entered by using Google account.
 
 #### 2. You can select a colour instead of adding an image:
 
           a. On the Profile page for your avatar
 
-          b. On the Keys page, when creating an API key 
+          b. On the Keys page, when creating an API key
 
 #### 3. On the Users tab of the Groups page, you can see the Roles and Last login columns.
 

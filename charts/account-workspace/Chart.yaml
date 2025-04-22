@@ -1,6 +1,15 @@
 apiVersion: v2
 name: account-workspace
-description: A Helm chart for WorkSpace
+description: A Helm chart for Account Workspace Service
 type: application
-version: 0.1.27
-appVersion: 3.19.0
+version: 0.1.30
+appVersion: 3.19.1
+keywords:
+  - workspace
+  - account-management
+  - user-management
+  - permissions
+home: https://git.corezoid.com/kubernetes/helm/singlespace
+maintainers:
+  - name: SingleSpace Team
+    email: singlespace-team@corezoid.com

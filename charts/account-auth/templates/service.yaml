@@ -5,7 +5,15 @@ metadata:
   name: {{ include "account.auth.service.name" . }}
   labels:
     {{- include "account.auth.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
   selector:
     {{- include "account.auth.labels" . | nindent 6 }}
   ports:
@@ -13,4 +21,10 @@ spec:
       port: {{ include "account.auth.portNumber" . }}
       targetPort: {{ include "account.auth.portNumber" . }}
       protocol: {{ include "account.auth.portProtocol" . }}
+    {{- if .Values.global.account.auth.portMetrics }}
+    - name: metrics
+      port: {{ include "account.auth.portMetricsNumber" . }}
+      targetPort: {{ include "account.auth.portMetricsNumber" . }}
+      protocol: {{ include "account.auth.portProtocol" . }}
+    {{- end }}
 {{- end }}

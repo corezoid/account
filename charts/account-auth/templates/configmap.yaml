@@ -7,32 +7,40 @@ metadata:
   name: {{ include "account.auth.configmap.name" . }}
   labels:
     {{- include "account.auth.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+    "helm.sh/hook-weight": "0"
 data:
   {{ .Values.configName }}: |
     env: {{ .Values.global.env | default "prod" }}
     type: {{ .Values.global.account.type | default "in_house" }}
     url: {{ .Values.global.account.protocol | default "https://" }}{{ .Values.global.account.subDomain }}.{{ .Values.global.domain }}
+    
     listen:
       type: port
       bind_ip: 0.0.0.0
       port: {{ .Values.global.account.auth.port }}
       metrics_port: {{ include "account.auth.portMetricsNumber" . }}
+    
     psql:
       host: ${POSTGRES_DBHOST}
       port: ${POSTGRES_DBPORT}
       user: ${POSTGRES_DBUSER}
       password: ${POSTGRES_DBPWD}
       database: ${DB_NAME}
+    
     license_psql:
       host: ${POSTGRES_DBHOST}
       port: ${POSTGRES_DBPORT}
       user: ${POSTGRES_DBUSER}
       password: ${POSTGRES_DBPWD}
       database: {{ $auth_config.license_db | default "settings" }}
+    
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DB}
+    
 {{ $global_config | toYaml | trim | indent 4 }}
 {{- end }}

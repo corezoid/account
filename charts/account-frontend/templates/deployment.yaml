@@ -52,6 +52,8 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{ include "account.frontend.liveness" . | nindent 10 }}
+          {{ include "account.frontend.readiness" . | nindent 10 }}
           volumeMounts:
             - name: config-nginx
               mountPath: /etc/nginx/nginx.conf

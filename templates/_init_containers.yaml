@@ -1,0 +1,101 @@
+{{/* Templates for account init containers */}}
+
+{{- define "AccountInitWaitDatabase" -}}
+- name: init-wait-database-resolve
+  image: {{ include "account.common.initWait.image" . }}
+  imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+  command: ["sh"]
+  args:
+    - "-c"
+    - |
+      until getent hosts "$POSTGRES_DBHOST" > /dev/null 2>&1; do
+        echo "Waiting for $POSTGRES_DBHOST to be available..."
+        sleep 2
+      done
+      echo "$POSTGRES_DBHOST resolved successfully"
+  env:
+    {{- include "account.container_envs_db" . | nindent 4 }}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+
+- name: init-wait-database-port
+  image: {{ include "account.common.initWait.image" . }}
+  imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+  command: ["sh"]
+  args:
+    - "-c"
+    - |
+      until nc -zvw1 $POSTGRES_DBHOST $POSTGRES_DBPORT;
+      do echo waiting for database; sleep 2; done;
+  env:
+    {{- include "account.container_envs_db" . | nindent 4 }}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+
+- name: init-wait-database-account
+  image: {{ .Values.postgresqlClientImage.registry }}/{{ .Values.postgresqlClientImage.repository }}:{{ .Values.postgresqlClientImage.tag }}
+  imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+  {{- if eq .Values.global.db.serverTlsSslenabled true }}
+  command: ["sh", "-c", "until PGPASSWORD=${POSTGRES_DBPWD} psql --set=sslmode={{ .Values.global.db.serverTlsSslmode }} -h ${POSTGRES_DBHOST} -U ${POSTGRES_DBUSER} -d ${DB_NAME} -c \"select 1\" > /dev/null 2>&1; do echo Waiting for ${DB_NAME} database; sleep 3; done;"]
+  {{- else }}
+  command: ["sh", "-c", "until PGPASSWORD=${POSTGRES_DBPWD} psql -h ${POSTGRES_DBHOST} -U ${POSTGRES_DBUSER} -d ${DB_NAME} -c \"select 1\" > /dev/null 2>&1; do echo Waiting for ${DB_NAME} database; sleep 3; done;"]
+  {{- end }}
+  env:
+    {{- include "account.container_envs_db" . | nindent 4 }}
+{{- end -}}
+
+{{- define "AccountInitWaitRedis" -}}
+- name: init-wait-redis-resolve
+  image: {{ include "account.common.initWait.image" . }}
+  imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+  command: ["sh"]
+  args:
+    - "-c"
+    - |
+      until getent hosts "$REDIS_HOST" > /dev/null 2>&1; do
+        echo "Waiting for $REDIS_HOST to be available..."
+        sleep 2
+      done
+      echo "$REDIS_HOST resolved successfully"
+  env:
+    {{- include "account.container_envs_redis" . | nindent 4 }}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+
+- name: init-wait-redis-port
+  image: {{ include "account.common.initWait.image" . }}
+  imagePullPolicy: {{ .Values.global.imageInit.pullPolicy | default "IfNotPresent" }}
+  command: ["sh"]
+  args:
+    - "-c"
+    - |
+      until nc -zvw1 $REDIS_HOST $REDIS_PORT;
+      do echo waiting for redis; sleep 2; done;
+  env:
+    {{- include "account.container_envs_redis" . | nindent 4 }}
+  terminationMessagePath: /dev/termination-log
+  terminationMessagePolicy: File
+{{- end -}}
+
+{{/* Template for image verification if needed in the future */}}
+{{- define "AccountInitVerifyImageSignature" -}}
+{{- $subchart := .subchart }}
+{{- $application_tag := .application_tag }}
+{{- $values := .Values }}
+- name: init-verify-image-signature
+  image: {{ $values.global.imageInit.repository }}:{{ $values.global.imageInit.tag }}
+  imagePullPolicy: IfNotPresent
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+  command:
+    - sh
+    - -c
+    - |
+      cosign verify --key /etc/cosign-keys/cosign.pub {{ $values.global.imageRegistry }}/{{ $values.global.repotype }}/{{ $values.image.repository }}:{{ $application_tag }}
+  volumeMounts:
+    - name: cosign-keys
+      mountPath: /etc/cosign-keys
+      readOnly: true
+{{- end -}}

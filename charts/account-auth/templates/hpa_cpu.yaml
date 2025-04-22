@@ -3,7 +3,7 @@
 {{- if $auth_data.autoscaling }}
 {{- if $auth_data.autoscaling.enabled }}
 {{- $autoscaling := $auth_data.autoscaling }}
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "account.auth.cpuHpa.name" . }}
@@ -16,9 +16,40 @@ spec:
     name: {{ include "account.auth.deployment.name" . }}
   minReplicas: {{ $autoscaling.minReplicas }}
   maxReplicas: {{ $autoscaling.maxReplicas }}
+  metrics:
   {{- if $autoscaling.targetCPUUtilizationPercentage }}
-  targetCPUUtilizationPercentage: {{ $autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ $autoscaling.targetCPUUtilizationPercentage }}
   {{- end }}
+  {{- if $autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ $autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
 {{- end }}
 {{- end }}
 {{- end }}

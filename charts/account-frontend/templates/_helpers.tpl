@@ -79,3 +79,35 @@ Image url
 {{ toYaml . | trim | indent 4 }}
 {{- end }}
 {{- end }}
+
+{{/*
+Liveness
+*/}}
+{{- define "account.frontend.liveness" -}}
+livenessProbe:
+  httpGet:
+    scheme: HTTP
+    path: /liveness-proxy
+    port: {{ include "account.frontend.portHttpName" . }}
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+{{- end }}
+
+{{/*
+Readiness
+*/}}
+{{- define "account.frontend.readiness" -}}
+readinessProbe:
+  httpGet:
+    scheme: HTTP
+    path: /liveness-proxy
+    port: {{ include "account.frontend.portHttpName" . }}
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+{{- end }}

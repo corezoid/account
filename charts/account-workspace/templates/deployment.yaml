@@ -3,6 +3,7 @@
 {{- $workspace_data := $account_data.workspace -}}
 {{- $auth_data := $account_data.auth -}}
 {{- $app_name := (include "module.workspace.name" . ) -}}
+{{- $application_tag := .Values.global.account.workspace.tag | default .Chart.AppVersion -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,6 +15,8 @@ spec:
 {{- if $workspace_data.autoscaling.enabled }}
   replicas: {{ $workspace_data.autoscaling.minReplicas }}
 {{- end }}
+{{- else }}
+  replicas: {{ $workspace_data.replicas | default 1 }}
 {{- end }}
   selector:
     matchLabels:
@@ -33,11 +36,20 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         {{- include "account.workspace.labels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "module.workspace.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ $application_tag | quote }}
+        app.kubernetes.io/component: workspace
+        app.kubernetes.io/part-of: singlespace
     spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
+      {{- if kindIs "slice" .Values.global.imagePullSecrets }}
       {{- range $pullSecret := .Values.global.imagePullSecrets }}
         - name: {{ $pullSecret }}
+      {{- end }}
+      {{- else if .Values.global.imagePullSecrets.name }}
+        - name: {{ .Values.global.imagePullSecrets.name }}
       {{- end }}
       {{- end }}
       serviceAccountName: {{- include "account.workspace.serviceaccount.name" . | nindent 8 }}
@@ -45,79 +57,11 @@ spec:
         {{- toYaml $account_data.podSecurityContext | nindent 8 }}
       terminationGracePeriodSeconds: {{ $workspace_data.terminationGracePeriodSeconds | default 60 }}
       initContainers:
-        - name: init-wait-database-resolve
-          image: {{ include "account.common.initWait.image" . }}
-          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
-          command: ["sh"]
-          args:
-            - "-c"
-            - |
-              if ! echo ${POSTGRES_DBHOST} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-                until IP=$(nslookup ${POSTGRES_DBHOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
-                  echo "Waiting for Database IP resolution";
-                  sleep 2;
-                done
-              else
-                echo "${POSTGRES_DBHOST} is already an IP address, skipping resolution.";
-              fi
-          env:
-            {{- include "account.container_envs_db" . | trim | nindent 12 }}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-
-        - name: init-wait-database-port
-          image: {{ include "account.common.initWait.image" . }}
-          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
-          command: ['sh']
-          args:
-            - "-c"
-            - |
-              until nc -zvw1 ${POSTGRES_DBHOST} ${POSTGRES_DBPORT};
-              do
-                echo "Waiting for Database port available";
-                sleep 2;
-              done;
-          env:
-            {{- include "account.container_envs_db" . | trim | nindent 12 }}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-
-        - name: init-wait-redis-resolve
-          image: {{ include "account.common.initWait.image" . }}
-          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
-          command: ["sh"]
-          args:
-            - "-c"
-            - |
-              if ! echo ${REDIS_HOST} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-                until IP=$(nslookup ${REDIS_HOST} 2>/dev/null | grep "Address: " | sed 's/.*: //g;s/ .*//g'); [ -n "$IP" ]; do
-                  echo "Waiting for Redis IP resolution";
-                  sleep 2;
-                done
-              else
-                echo "${REDIS_HOST} is already an IP address, skipping resolution.";
-              fi
-          env:
-            {{- include "account.container_envs_redis" . | trim | nindent 12 }}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-
-        - name: init-wait-redis-port
-          image: {{ include "account.common.initWait.image" . }}
-          imagePullPolicy: {{ $global_data.imageInit.pullPolicy | default "IfNotPresent" }}
-          command: ['sh']
-          args:
-            - "-c"
-            - |
-              until nc -zvw1 ${REDIS_HOST} ${REDIS_PORT};
-              do
-                echo "Waiting for Redis port available";
-                sleep 2;
-              done;
-          env:
-            {{- include "account.container_envs_redis" . | trim | nindent 12 }}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
+        {{ include "AccountInitWaitDatabase" . | nindent 8 | trim }}
+        {{ include "AccountInitWaitRedis" . | nindent 8 | trim }}
+        {{- if and (hasKey $workspace_data "verify_signature") (eq $workspace_data.verify_signature true) }}
+        {{ include "AccountInitVerifyImageSignature" (dict "Values" .Values "Chart" .Chart "Release" .Release "subchart" "workspace" "application_tag" $application_tag) | nindent 8 | trim }}
+        {{- end }}
 
       containers:
         - name: {{ include "module.workspace.name" . }}
@@ -147,10 +91,16 @@ spec:
               protocol: {{ include "account.workspace.portProtocol" . }}
           {{- include "account.workspace.liveness" . | nindent 10 }}
           {{- include "account.workspace.readiness" . | nindent 10 }}
-          {{- with $workspace_data.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
+          {{- if $workspace_data.resources }}
+            {{- toYaml $workspace_data.resources | nindent 12 }}
+          {{- else }}
+            {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
           volumeMounts:
             - name: {{ $app_name }}-config-volume
               mountPath: {{ .Values.configPath }}/{{ .Values.configName }}
@@ -160,7 +110,7 @@ spec:
               mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
             {{- end }}
             {{- if .Values.global.account.config.one_app }}
-            {{- if $account_data.config.auth_providers.saml }}
+            {{- if and $account_data.config.auth_providers $account_data.config.auth_providers.saml }}
             {{- if $account_data.config.auth_providers.saml.google_saml }}
             {{- if eq $account_data.config.auth_providers.saml.google_saml.enabled true }}
             - name: metadata-google
@@ -188,7 +138,7 @@ spec:
             readOnly: false
         {{- end }}
         {{- if .Values.global.account.config.one_app }}
-        {{- if $account_data.config.auth_providers.saml }}
+        {{- if and $account_data.config.auth_providers $account_data.config.auth_providers.saml }}
         {{- if $account_data.config.auth_providers.saml.google_saml }}
         {{- if eq $account_data.config.auth_providers.saml.google_saml.enabled true }}
         - name: metadata-google
@@ -212,9 +162,21 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with $account_data.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+      {{- if $account_data.affinity }}
+        {{- toYaml $account_data.affinity | nindent 8 }}
+      {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ include "module.workspace.name" . }}
+              topologyKey: kubernetes.io/hostname
       {{- end }}
       {{- with $account_data.tolerations }}
       tolerations:

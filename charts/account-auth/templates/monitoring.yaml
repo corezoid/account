@@ -8,6 +8,8 @@ metadata:
   labels:
     {{- include "account.auth.labels" . | nindent 4 }}
     {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+  annotations:
+    description: "ServiceMonitor for account-auth metrics"
 spec:
   selector:
     matchLabels:
@@ -16,6 +18,15 @@ spec:
   - path: {{ .Values.prometheusPath | default "/metrics" }}
     targetPort: {{ include "account.auth.portMetricsNumber" . }}
     interval: {{ .Values.prometheusInterval | default "15s" }}
+    scrapeTimeout: {{ .Values.prometheusScrapeTimeout | default "10s" }}
+    honorLabels: true
+    metricRelabelings:
+    {{- if .Values.prometheusMetricRelabelings }}
+    {{- toYaml .Values.prometheusMetricRelabelings | nindent 4 }}
+    {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
 {{- end -}}
 {{- end -}}
 {{- end }}

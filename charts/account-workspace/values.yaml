@@ -3,6 +3,11 @@ appName: workspace
 image:
   repository: account-workspace
 
+postgresqlClientImage:
+  registry: hub.corezoid.com/simulator
+  repository: postgresql-client
+  tag: "16.8"  # Using specific version instead of latest for stability
+
 configPath: "/opt/conf"
 configName: "config.yml"
 appAuthLivenessPath: "/liveness"
@@ -21,3 +26,22 @@ readinessProbe:
   timeoutSeconds: 5
   successThreshold: 1
   failureThreshold: 3
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+service:
+  type: ClusterIP
+  sessionAffinity: None
+  annotations: {}
+
+prometheus:
+  path: "/metrics"
+  interval: "15s"
+  scrapeTimeout: "10s"
+  metricRelabelings: []

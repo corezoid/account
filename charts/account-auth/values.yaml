@@ -1,5 +1,10 @@
 appName: account-auth
 
+postgresqlClientImage:
+  registry: hub.corezoid.com/simulator
+  repository: postgresql-client
+  tag: "16.8"
+
 image:
   repository: account-auth
 
@@ -21,3 +26,16 @@ readinessProbe:
   timeoutSeconds: 5
   successThreshold: 1
   failureThreshold: 3
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+service:
+  type: ClusterIP
+  sessionAffinity: None
+  annotations: {}

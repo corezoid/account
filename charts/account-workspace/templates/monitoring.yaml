@@ -6,16 +6,27 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Values.appName }}
   labels:
-    {{- include "account.auth.labels" . | nindent 4 }}
+    {{- include "account.workspace.labels" . | nindent 4 }}
     {{- include "common.ServiceMonitor.metadata.labes" . | nindent 4 }}
+  annotations:
+    description: "ServiceMonitor for account-workspace metrics"
 spec:
   selector:
     matchLabels:
-      {{- include "account.auth.labels" . | nindent 6 }}
+      {{- include "account.workspace.labels" . | nindent 6 }}
   endpoints:
-  - path: {{ .Values.prometheusPath | default "/metrics" }}
-    targetPort: {{ include "account.auth.portMetricsNumber" . }}
-    interval: {{ .Values.prometheusInterval | default "15s" }}
+  - path: {{ .Values.prometheus.path | default "/metrics" }}
+    targetPort: {{ include "account.workspace.portMetricsNumber" . }}
+    interval: {{ .Values.prometheus.interval | default "15s" }}
+    scrapeTimeout: {{ .Values.prometheus.scrapeTimeout | default "10s" }}
+    honorLabels: true
+    metricRelabelings:
+    {{- if .Values.prometheus.metricRelabelings }}
+    {{- toYaml .Values.prometheus.metricRelabelings | nindent 4 }}
+    {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
 {{- end -}}
 {{- end -}}
 {{- end }}

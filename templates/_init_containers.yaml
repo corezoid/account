@@ -77,23 +77,72 @@
   terminationMessagePolicy: File
 {{- end -}}
 
-{{/* Template for image verification if needed in the future */}}
+{{/* Template for image signature verification */}}
 {{- define "AccountInitVerifyImageSignature" -}}
 {{- $subchart := .subchart }}
 {{- $application_tag := .application_tag }}
 {{- $values := .Values }}
 - name: init-verify-image-signature
   image: {{ $values.global.imageInit.repository }}:{{ $values.global.imageInit.tag }}
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: {{ $values.global.imageInit.pullPolicy | default "IfNotPresent" }}
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
-  command:
-    - sh
-    - -c
+    runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+  command: ["sh"]
+  args:
+    - "-c"
     - |
-      cosign verify --key /etc/cosign-keys/cosign.pub {{ $values.global.imageRegistry }}/{{ $values.global.repotype }}/{{ $values.image.repository }}:{{ $application_tag }}
+      # Create directory for cosign if it doesn't exist
+      mkdir -p /tmp/cosign
+      cd /tmp/cosign
+
+      # Install cosign if not already installed
+      if ! command -v cosign &> /dev/null; then
+        echo "Installing cosign..."
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+          wget -q https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-arm64
+          chmod +x cosign-linux-arm64
+          cp cosign-linux-arm64 /usr/local/bin/cosign
+        else
+          wget -q https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+          chmod +x cosign-linux-amd64
+          cp cosign-linux-amd64 /usr/local/bin/cosign
+        fi
+      fi
+
+      # Install jq for JSON processing
+      apk add --no-cache jq
+
+      # Verify the image signature
+      echo "Verifying signature for image: ${IMAGE_TO_VERIFY}"
+      {{- if $values.global.imagePullSecrets }}
+      echo ${HUB_PASH} | cosign login ${HUB_HOST} -u ${HUB_LOGIN} --password-stdin
+      {{- end }}
+
+      if ! cosign verify --key /etc/cosign-keys/cosign.pub ${IMAGE_TO_VERIFY} | jq .; then
+        echo "Image signature verification failed!"
+        exit 1
+      fi
+      echo "Image signature verification successful!"
+  env:
+    - name: IMAGE_TO_VERIFY
+      value: "{{ $values.global.imageRegistry }}/{{ $values.global.repotype }}/{{ $values.image.repository }}:{{ $application_tag }}"
+    {{- if not (eq .Values.global.repotype "public") -}}
+    - name: HUB_LOGIN
+      valueFrom:
+        secretKeyRef:
+          name: cosign-keys
+          key: HUB_LOGIN
+    - name: HUB_PASH
+      valueFrom:
+        secretKeyRef:
+          name: cosign-keys
+          key: HUB_PASH
+    {{- end }}
+    - name: HUB_HOST
+      value: {{ $values.global.imageRegistry }}
   volumeMounts:
     - name: cosign-keys
       mountPath: /etc/cosign-keys

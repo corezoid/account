@@ -10,6 +10,9 @@ Common labels
 {{- define "account.workspace.labels" -}}
 release: {{ .Release.Name | quote }}
 application: {{ include "module.workspace.name" . }}
+{{- if .Values.global.account.workspace.customLabels }}
+{{- toYaml .Values.global.account.workspace.customLabels | nindent 0 }}
+{{- end }}
 {{- end }}
 
 {{- define "module.workspace.name" -}}
@@ -77,6 +80,13 @@ Set metrics port
 */}}
 {{- define "account.workspace.portMetricsNumber" -}}
 {{ .Values.global.account.workspace.portMetrics | default 9100 }}
+{{- end }}
+
+{{/*
+Set profiler port
+*/}}
+{{- define "account.workspace.portProfilerNumber" -}}
+{{ .Values.global.account.workspace.portProfiler | default 8050 }}
 {{- end }}
 
 {{/*

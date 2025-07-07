@@ -4,6 +4,9 @@ Common labels
 {{- define "account.frontend.labels" -}}
 release: {{ .Release.Name | quote }}
 application: {{ include "module.frontend.name" . }}
+{{- if .Values.global.account.frontend.customLabels }}
+{{- toYaml .Values.global.account.frontend.customLabels | nindent 0 }}
+{{- end }}
 {{- end }}
 
 {{- define "module.frontend.name" -}}

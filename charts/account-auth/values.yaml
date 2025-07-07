@@ -39,3 +39,8 @@ service:
   type: ClusterIP
   sessionAffinity: None
   annotations: {}
+# Additional custom labels
+# customLabels:
+#   environment: production
+#   team: authentication
+#   costCenter: cc123

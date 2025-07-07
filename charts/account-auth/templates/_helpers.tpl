@@ -4,6 +4,9 @@ Common labels
 {{- define "account.auth.labels" -}}
 release: {{ .Release.Name | quote }}
 application: {{ include "module.auth.name" . }}
+{{- if .Values.global.account.auth.customLabels }}
+{{- toYaml .Values.global.account.auth.customLabels | nindent 0 }}
+{{- end }}
 {{- end }}
 
 {{- define "module.auth.name" -}}
@@ -59,6 +62,13 @@ Set metrics port
 */}}
 {{- define "account.auth.portMetricsNumber" -}}
 {{ .Values.global.account.auth.portMetrics | default 9100 }}
+{{- end }}
+
+{{/*
+Set profiler port
+*/}}
+{{- define "account.auth.portProfilerNumber" -}}
+{{ .Values.global.account.auth.portProfiler | default 8050 }}
 {{- end }}
 
 {{- define "account.auth.portHttpName" -}}

@@ -35,6 +35,28 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if and .Values.global.pyroscope .Values.global.pyroscope.enabled }}
+        # Pyroscope CPU profiling
+        profiles.grafana.com/cpu.scrape: "true"
+        profiles.grafana.com/cpu.port: "{{ include "account.auth.portProfilerNumber" . }}"
+        profiles.grafana.com/cpu.path: "/debug/pprof/profile"
+        # Pyroscope Memory profiling
+        profiles.grafana.com/memory.scrape: "true"
+        profiles.grafana.com/memory.port: "{{ include "account.auth.portProfilerNumber" . }}"
+        profiles.grafana.com/memory.path: "/debug/pprof/heap"
+        # Pyroscope Goroutine profiling
+        profiles.grafana.com/goroutine.scrape: "true"
+        profiles.grafana.com/goroutine.port: "{{ include "account.auth.portProfilerNumber" . }}"
+        profiles.grafana.com/goroutine.path: "/debug/pprof/goroutine"
+        # Pyroscope Block profiling
+        profiles.grafana.com/block.scrape: "true"
+        profiles.grafana.com/block.port: "{{ include "account.auth.portProfilerNumber" . }}"
+        profiles.grafana.com/block.path: "/debug/pprof/block"
+        # Pyroscope Mutex profiling
+        profiles.grafana.com/mutex.scrape: "true"
+        profiles.grafana.com/mutex.port: "{{ include "account.auth.portProfilerNumber" . }}"
+        profiles.grafana.com/mutex.path: "/debug/pprof/mutex"
+        {{- end }}
       labels:
         {{- include "account.auth.labels" . | nindent 8 }}
         app.kubernetes.io/name: {{ include "module.auth.name" . }}
@@ -80,6 +102,7 @@ spec:
             {{- end }}
           {{- include "account.container_envs_redis" .  | trim | nindent 12 }}
           {{- include "account.container_envs_db" .  | trim | nindent 12 }}
+          {{- include "account.container_envs_secrets" .  | trim | nindent 12 }}
           ports:
             - name: {{ include "account.auth.portHttpName" . }}
               containerPort: {{ include "account.auth.portNumber" . }}
@@ -87,6 +110,11 @@ spec:
             - name: metrics
               containerPort: {{ include "account.auth.portMetricsNumber" . }}
               protocol: {{ include "account.auth.portProtocol" . }}
+            {{- if and .Values.global.pyroscope .Values.global.pyroscope.enabled }}
+            - name: pprof
+              containerPort: {{ include "account.auth.portProfilerNumber" . }}
+              protocol: TCP
+            {{- end }}
           {{- include "account.auth.liveness" . | nindent 10 }}
           {{- include "account.auth.readiness" . | nindent 10 }}
           resources:
@@ -157,9 +185,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       affinity:
-      {{- if $account_data.affinity }}
+      {{- if $auth_data.affinity }}
+        {{- toYaml $auth_data.affinity | nindent 8 }}
+      {{- else if $account_data.affinity }}
         {{- toYaml $account_data.affinity | nindent 8 }}
-      {{- else }}
+      {{- end }}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
@@ -171,7 +201,6 @@ spec:
                   values:
                   - {{ include "module.auth.name" . }}
               topologyKey: kubernetes.io/hostname
-      {{- end }}
       {{- with $account_data.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}

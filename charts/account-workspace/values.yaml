@@ -13,6 +13,7 @@ configName: "config.yml"
 appAuthLivenessPath: "/liveness"
 appAuthReadinessPath: "/readiness"
 
+
 livenessProbe:
   initialDelaySeconds: 10
   periodSeconds: 10

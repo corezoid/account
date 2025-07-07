@@ -1,4 +1,3 @@
-{{- if .Values.global.account.config.one_app }}
 {{- if .Values.global.serviceMonitor -}}
 {{- if .Values.global.serviceMonitor.enabled -}}
 apiVersion: {{ include "common.ServiceMonitor.apiVersion" . }}
@@ -29,4 +28,3 @@ spec:
     - {{ .Release.Namespace }}
 {{- end -}}
 {{- end -}}
-{{- end }}

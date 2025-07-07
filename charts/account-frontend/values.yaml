@@ -2,3 +2,8 @@ appName: account-frontend
 
 image:
   repository: account-frontend
+# Additional custom labels
+# customLabels:
+#   environment: production
+#   team: frontend
+#   costCenter: cc789

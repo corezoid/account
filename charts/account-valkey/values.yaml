@@ -4,3 +4,8 @@ image:
   registry: docker.io/valkey
   repository: /valkey
   tag: "8.1-alpine"
+# Additional custom labels
+# customLabels:
+#   environment: production
+#   team: datastore
+#   costCenter: cc321

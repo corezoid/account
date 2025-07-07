@@ -26,3 +26,9 @@ spec:
       targetPort: {{ include "account.workspace.portMetricsNumber" . }}
       protocol: {{ include "account.workspace.portProtocol" . }}
     {{- end }}
+    {{- if and .Values.global.pyroscope .Values.global.pyroscope.enabled }}
+    - name: pprof
+      port: {{ include "account.workspace.portProfilerNumber" . }}
+      targetPort: {{ include "account.workspace.portProfilerNumber" . }}
+      protocol: TCP
+    {{- end }}

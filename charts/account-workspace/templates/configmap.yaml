@@ -16,6 +16,10 @@ data:
       bind_ip: 0.0.0.0
       port: {{ .Values.global.account.workspace.port }}
       metrics_port: {{ include "account.workspace.portMetricsNumber" . }}
+      {{- if and .Values.global.pyroscope .Values.global.pyroscope.enabled }}
+      pprof_port: {{ include "account.workspace.portProfilerNumber" . }}
+      enable_pprof: true
+      {{- end }}
     psql:
       host: ${POSTGRES_DBHOST}
       port: ${POSTGRES_DBPORT}

@@ -27,4 +27,10 @@ spec:
       targetPort: {{ include "account.auth.portMetricsNumber" . }}
       protocol: {{ include "account.auth.portProtocol" . }}
     {{- end }}
+    {{- if and .Values.global.pyroscope .Values.global.pyroscope.enabled }}
+    - name: pprof
+      port: {{ include "account.auth.portProfilerNumber" . }}
+      targetPort: {{ include "account.auth.portProfilerNumber" . }}
+      protocol: TCP
+    {{- end }}
 {{- end }}

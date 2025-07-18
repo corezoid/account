@@ -56,6 +56,7 @@ spec:
         profiles.grafana.com/mutex.port: "{{ include "account.workspace.portProfilerNumber" . }}"
         profiles.grafana.com/mutex.path: "/debug/pprof/mutex"
         {{- end }}
+        {{- include "account.workspace.annotations" . | nindent 4 }}
       labels:
         {{- include "account.workspace.labels" . | nindent 8 }}
         app.kubernetes.io/name: {{ include "module.workspace.name" . }}

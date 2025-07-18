@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.28 [Account 3.20.0] - 2025-07-18
+### Helm changes
+- Added support for custom annotations in application deployments through configurable template values.
+
 ## Chart 0.2.27 [Account 3.20.0] - 2025-07-07
 ### Helm changes
 ### Application Versions

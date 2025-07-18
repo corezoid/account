@@ -57,6 +57,7 @@ spec:
         profiles.grafana.com/mutex.port: "{{ include "account.auth.portProfilerNumber" . }}"
         profiles.grafana.com/mutex.path: "/debug/pprof/mutex"
         {{- end }}
+        {{- include "account.auth.annotations" . | nindent 4 }}
       labels:
         {{- include "account.auth.labels" . | nindent 8 }}
         app.kubernetes.io/name: {{ include "module.auth.name" . }}

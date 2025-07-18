@@ -3,7 +3,7 @@ name: singlespace
 description: A Helm chart for Account
 icon: https://account.corezoid.com/static/logo.svg
 type: application
-version: 0.2.27
+version: 0.2.28
 appVersion: 3.20.0
 dependencies:
   - name: account-auth

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.30 [Account 3.20.0] - 2025-08-20
+### Helm changes
+- **account-frontend**: Added "path" field to nginx JSON log format
+  - Added `"path": "$uri"` field to the existing JSON log structure
+  - Incremented account-frontend subchart version from 0.1.26 to 0.1.27
+- **account-frontend**: Updated nginx redirect configuration to use add_header Location for relative path redirects
+  - Changed `@redirect` location block from `return 302 /avatars/54x54/0.jpg;` to `add_header Location /avatars/54x54/0.jpg; return 302;`
+  - Incremented account-frontend subchart version from 0.1.27 to 0.1.28
+  - Updated root chart dependency reference to account-frontend 0.1.28
+
+## Chart 0.2.29 [Account 3.20.0] - 2025-08-20
+### Helm changes
+- **account-frontend**: Updated nginx log format from tab-separated to JSON format
+  - Converted `up_log` format to JSON structure with `escape=json` parameter
+  - Preserved all existing log fields: server_addr, server_port, http_x_forwarded_for, time_iso8601, upstream_addr, request, status, body_bytes_sent, request_time, upstream_response_time, http_referer, http_user_agent, host
+  - Incremented account-frontend subchart version from 0.1.25 to 0.1.26
+
 ## Chart 0.2.28 [Account 3.20.0] - 2025-07-18
 ### Helm changes
 - Added support for custom annotations in application deployments through configurable template values.

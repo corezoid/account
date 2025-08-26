@@ -47,7 +47,22 @@ data:
       log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-      log_format up_log '$server_addr\t$server_port\t$http_x_forwarded_for\t$time_iso8601\tforward-to $upstream_addr\t$request\t$status\t$body_bytes_sent\t$request_time\t$upstream_response_time\t$http_referer\t$http_user_agent\t$host';
+      log_format up_log escape=json '{'
+                        '"server_addr": "$server_addr",'
+                        '"server_port": "$server_port",'
+                        '"http_x_forwarded_for": "$http_x_forwarded_for",'
+                        '"time_iso8601": "$time_iso8601",'
+                        '"upstream_addr": "$upstream_addr",'
+                        '"request": "$request",'
+                        '"path": "$uri",'
+                        '"status": $status,'
+                        '"body_bytes_sent": $body_bytes_sent,'
+                        '"request_time": $request_time,'
+                        '"upstream_response_time": $upstream_response_time,'
+                        '"http_referer": "$http_referer",'
+                        '"http_user_agent": "$http_user_agent",'
+                        '"host": "$host"'
+                        '}';
       access_log /dev/stdout up_log;
 
       sendfile        on;
@@ -108,7 +123,8 @@ data:
       add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }} https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.ngrok-free.app https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://*.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company; frame-ancestors 'self' https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://*.control.events https://*.simulator.company {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }};";
 
       location @redirect {
-        return 302 /avatars/54x54/0.jpg;
+        add_header Location /avatars/54x54/0.jpg;
+        return 302;
       }
 
       location /avatars {

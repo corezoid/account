@@ -73,6 +73,10 @@ spec:
             - name: {{ .Values.appName }}-claim
               mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
             {{- end }}
+            {{- if eq .Values.global.efs.enabled true}}
+            - name: {{ .Values.appName }}-efs-shared
+              mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
+            {{- end }}
       volumes:
         - name: config-nginx
           configMap:
@@ -90,6 +94,11 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.global.account.persistantVolumeClaimName }}
             readOnly: true
+        {{- end }}
+        {{- if eq .Values.global.efs.enabled true}}
+        - name: {{ .Values.appName }}-efs-shared
+          persistentVolumeClaim:
+            claimName: singlespace-efs-shared-pvc
         {{- end }}
       {{- with .Values.global.account.nodeSelector }}
       nodeSelector:

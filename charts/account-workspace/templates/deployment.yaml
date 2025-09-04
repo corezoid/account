@@ -141,6 +141,10 @@ spec:
             - name: {{ $app_name }}-pvc
               mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
             {{- end }}
+            {{- if eq .Values.global.efs.enabled true}}
+            - name: {{ $app_name }}-efs-shared
+              mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
+            {{- end }}
             {{- if .Values.global.account.config.one_app }}
             {{- if and $account_data.config.auth_providers $account_data.config.auth_providers.saml }}
             {{- if $account_data.config.auth_providers.saml.google_saml }}
@@ -173,6 +177,11 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $account_data.persistantVolumeClaimName }}
             readOnly: false
+        {{- end }}
+        {{- if eq .Values.global.efs.enabled true}}
+        - name: {{ $app_name }}-efs-shared
+          persistentVolumeClaim:
+            claimName: singlespace-efs-shared-pvc
         {{- end }}
         {{- if .Values.global.account.config.one_app }}
         {{- if and $account_data.config.auth_providers $account_data.config.auth_providers.saml }}

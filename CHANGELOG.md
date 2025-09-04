@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.31 [Account 3.20.0] - 2025-09-04
+### Added
+- EFS (Elastic File System) PersistentVolume and PersistentVolumeClaim support
+- Conditional EFS volume mounting in account-workspace, account-auth, and account-frontend deployments
+- EFS storageSize parameter in values.yaml configuration
+- Shared storage capability between application pods when global.efs.enabled=true
+
+### Changed
+- Updated account-workspace subchart version to 0.1.35
+- Updated account-auth subchart version to 0.1.35  
+- Updated account-frontend subchart version to 0.1.29
+
 ## Chart 0.2.30 [Account 3.20.0] - 2025-08-20
 ### Helm changes
 - **account-frontend**: Added "path" field to nginx JSON log format

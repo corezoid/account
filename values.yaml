@@ -69,6 +69,7 @@ global:
     efsFileSystemId: "fs-008b821530094cd91"
     ## set true if you choose storage: efs
     enabled: true
+    storageSize: "5Gi"
   ######## Settings NFS filesystem   ########
   nfs:
     ## set true if you choose storage: nfs

@@ -127,6 +127,70 @@ data:
         return 302 /avatars/54x54/0.jpg;
       }
 
+      location ~ ^/avatars/workspaces/([^/]+)/(.+)x(.+)/(.+)$ {
+        set $workspace_id $1;
+        set $width $2;
+        set $height $3;
+        set $filename $4;
+
+        proxy_http_version 1.1;
+        add_header      Content-Type image/jpeg;
+        #error_page 404 415 = @redirect;
+        alias $avatars_local;
+        try_files /workspaces/$workspace_id/$filename /$filename @redirect;
+
+        expires 1d;
+        image_filter                crop  $width  $height;
+        image_filter_buffer 20M;
+        image_filter_jpeg_quality 75; # Desired JPG quality
+
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        {{- if .Values.global.account.frontend.disable_sameorigin }}
+        #add_header X-Frame-Options SAMEORIGIN;
+        {{- else }}
+        add_header X-Frame-Options SAMEORIGIN;
+        {{- end }}
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        {{- if .Values.global.simulator }}
+        {{- if .Values.global.account.access_control_allow_origin }}
+        add_header 'Access-Control-Allow-Origin' $cors_origin always;
+        {{- else }}
+        add_header 'Access-Control-Allow-Origin' 'https://{{ .Values.global.simulator.subDomain}}.{{ .Values.global.simulator.mainDomian }}';
+        {{- end }}
+        {{- end }}
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }} https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.ngrok-free.app https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://*.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company; frame-ancestors 'self' https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://*.control.events https://*.simulator.company {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }};";
+      }
+
+      location ~ ^/avatars/workspaces/([^/]+)/(.+)$ {
+        set $workspace_id $1;
+        set $filename $2;
+        add_header      Content-Type image/jpeg;
+        alias $avatars_local;
+        try_files /workspaces/$workspace_id/$filename /$filename @redirect;
+
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        {{- if .Values.global.account.frontend.disable_sameorigin }}
+        #add_header X-Frame-Options SAMEORIGIN;
+        {{- else }}
+        add_header X-Frame-Options SAMEORIGIN;
+        {{- end }}
+        add_header X-XSS-Protection "1; mode=block";
+        add_header 'Referrer-Policy' 'origin-when-cross-origin';
+        add_header Permissions-Policy "geolocation=(), camera=()";
+        {{- if .Values.global.simulator }}
+        {{- if .Values.global.account.access_control_allow_origin }}
+        add_header 'Access-Control-Allow-Origin' $cors_origin always;
+        {{- else }}
+        add_header 'Access-Control-Allow-Origin' 'https://{{ .Values.global.simulator.subDomain}}.{{ .Values.global.simulator.mainDomian }}';
+        {{- end }}
+        {{- end }}
+        add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }} https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.ngrok-free.app https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://*.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company; frame-ancestors 'self' https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://*.control.events https://*.simulator.company {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }};";
+      }
+
       location /avatars {
         add_header      Content-Type image/jpeg;
         error_page 404 415 = @redirect;
@@ -151,6 +215,8 @@ data:
         {{- end }}
         add_header Content-Security-Policy "default-src 'self' blob: 'unsafe-inline' 'unsafe-eval' data: {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }} https://unpkg.com wss://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }}  https://*.control.events https://img.icons8.com/ https://www.google-analytics.com https://fonts.gstatic.com https://www.googletagmanager.com https://*.{{ .Values.global.env }}.{{ .Values.global.domain }} https://github.com https://www.facebook.com https://appleid.apple.com https://*.ngrok-free.app https://*.google.com https://stats.g.doubleclick.net https://fonts.googleapis.com https://*.google.com.ua https://*.shopify.com https://shopify.com https://*.googleusercontent.com https://*.simulator.company; frame-ancestors 'self' https://{{ .Values.global.account.subDomain}}.{{ .Values.global.domain }} https://*.control.events https://*.simulator.company {{- range .Values.global.account.content_security_policy.urls }} {{.}}{{- end }};";
       }
+
+      
 
       location ~ ^/avatars/(.+)x(.+)/(.+) {
         set                         $width  $1;

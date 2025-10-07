@@ -4,6 +4,10 @@ metadata:
   name: {{ include "account.frontend.service.name" . }}
   labels:
     {{- include "account.frontend.labels" . | nindent 4 }}
+  {{- with .Values.global.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     {{- include "account.frontend.labels" . | nindent 6 }}

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.32 [Account 3.20.0] - 2025-10-07
+### Added
+- Added support for custom annotations in account-frontend service through configurable template values
+
+### Changed
+- Updated account-frontend subchart version to 0.1.30
+
 ## Chart 0.2.31 [Account 3.20.0] - 2025-09-04
 ### Added
 - EFS (Elastic File System) PersistentVolume and PersistentVolumeClaim support

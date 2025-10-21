@@ -5,7 +5,7 @@ metadata:
   name: {{ include "account.auth.service.name" . }}
   labels:
     {{- include "account.auth.labels" . | nindent 4 }}
-  {{- with .Values.service.annotations }}
+  {{- with .Values.global.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

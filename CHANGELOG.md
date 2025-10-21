@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.33 [Account 3.21.0] - 2025-10-21
+### Application Versions
+- **account-frontend**: 3.21.0
+- **account-auth**: 3.21.5
+- **account-workspace**: 3.21.5
+
+#### New Features
+- Replicate user rights feature
+- Implement User Avatar APIs for Workspaces
+- Add webhook event types configuration for API Keys
+- Extend User Model with animation field and update related APIs
+- Add field `company_domain` to Workspace settings
+
+#### Enhancements
+- Refactor License and License Attributes Logic (State Changes)
+- Restrict license visibility and editing to shared user's licenses
+- Adjust behavior of user dropdown list in dialogs (e.g., when removing a user from a workspace)
+- Add fallback image to the build
+
+## Chart 0.2.32 [Account 3.20.0] - 2025-10-07
+### Added
+- Added support for custom annotations in account-frontend service through configurable template values
+
+### Changed
+- Updated account-frontend subchart version to 0.1.30
+
 ## Chart 0.2.31 [Account 3.20.0] - 2025-09-04
 ### Added
 - EFS (Elastic File System) PersistentVolume and PersistentVolumeClaim support

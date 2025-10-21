@@ -6,6 +6,8 @@ global:
   domain: "control.local"
   product: "simulator"
   env: "prod"
+  service:
+    annotations: {}
   serviceMonitor:
     enabled: false
   # Pyroscope configuration for continuous profiling

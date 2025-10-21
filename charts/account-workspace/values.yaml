@@ -39,7 +39,6 @@ resources:
 service:
   type: ClusterIP
   sessionAffinity: None
-  annotations: {}
 
 prometheus:
   path: "/metrics"

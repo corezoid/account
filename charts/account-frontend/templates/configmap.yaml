@@ -124,7 +124,7 @@ data:
 
       location @redirect {
         absolute_redirect off;
-        return 302 /avatars/54x54/0.jpg;
+        return 302 /static/avatar.jpg;
       }
 
       location ~ ^/avatars/workspaces/([^/]+)/(.+)x(.+)/(.+)$ {

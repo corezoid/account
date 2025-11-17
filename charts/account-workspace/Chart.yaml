@@ -2,8 +2,8 @@ apiVersion: v2
 name: account-workspace
 description: A Helm chart for Account Workspace Service
 type: application
-version: 0.1.36
-appVersion: 3.21.5
+version: 0.1.37
+appVersion: 3.22.0
 keywords:
   - workspace
   - account-management

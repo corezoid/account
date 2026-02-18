@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.35 [Account 3.25.1] - 2026-02-18
+### Application Versions
+- **account-frontend**: 3.25.0
+- **account-auth**: 3.25.1
+- **account-workspace**: 3.25.1
+
+#### New Features
+- Add total_extra parameter to the payload for tracking total purchased extra state changes (includes new purchased + remaining)
+- Implement auto-charge functionality for extra state changes
+- New video avatars
+
+#### Enhancements
+- Add support for new video avatar format
+
+#### Bug Fixes
+- Fix production issues with license and user services
+
 ## Chart 0.2.34 [Account 3.22.0] - 2025-11-17
 ### Application Versions
 - **account-frontend**: 3.21.2

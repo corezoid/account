@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.36 [Account 3.26.0] - 2026-03-18
+### Application Versions
+- **account-frontend**: 3.26.0
+- **account-auth**: 3.26.0
+- **account-workspace**: 3.26.0
+
+#### New Features
+- Add timezone support across auth and user APIs
+- Add timezone and user_timezone columns to users table
+- Return timezone offset in /oauth2/userinfo response
+- Return timezone offset in GetShort response
+- Update timezone on UserInfo from X-User-Timezone header
+
+#### Enhancements
+- Return timezone offset in minutes instead of timezone name
+- Extract timezone offset calculation into separate function
+- Bump user cache key version to u.2
+
+#### Bug Fixes
+- Accept nullable timezone in UpdateUserTimezone
+- Handle deprecated Europe/Kiev timezone on server
+- Log warning on invalid timezone in timezoneOffset
+
 ## Chart 0.2.35 [Account 3.25.1] - 2026-02-18
 ### Application Versions
 - **account-frontend**: 3.25.0

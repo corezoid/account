@@ -211,7 +211,8 @@ global:
       admin_user:
         login: admin@corezoid.loc
         password: 222222222222222
-      access_token_expire_time: 100
+      access_token_expire_time: 3600
+      refresh_token_expire_time: 25920000
       logging:
         level: debug
       login_pass_auth:

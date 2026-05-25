@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.37 [Account 3.26.4] - 2026-05-22
+### Application Versions
+- **account-frontend**: 3.26.2
+- **account-auth**: 3.26.4
+- **account-workspace**: 3.26.4
+
+#### New Features
+- API for attaching files to payments
+
+#### Enhancements
+- SSO improvements and login notifications to Corezoid
+- Sorting users by domain
+
+#### Bug Fixes
+- Included fixes as listed in the release notes
+
 ## Chart 0.2.36 [Account 3.26.0] - 2026-03-18
 ### Application Versions
 - **account-frontend**: 3.26.0

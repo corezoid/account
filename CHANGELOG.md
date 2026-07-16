@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.39 [Account 3.29.5] - 2026-07-07
+### Application Versions
+- **account-frontend**: 3.28.0
+- **account-auth**: 3.29.5
+- **account-workspace**: 3.29.5
+
+#### New Features
+- Personalized user search ranking based on selection history
+- Improved transliteration support for user search (Cyrillic/Latin spelling variants)
+- Task log archival: optional long-term retention of task history in object storage
+- OAuth2 Dynamic Client Registration (DCR) and OIDC discovery
+- AI token management API (LiteLLM integration)
+- Stripe invoices displayed on the Payments page
+- Workspace ownership transfer via checkbox
+- User timezone settings
+- Suggest selection from a list of authorized profiles
+
+#### Enhancements
+- Improved search ranking accuracy and reduced false matches from transliteration
+- TLS support for Redis/ElastiCache in auth and workspace services
+- Enforced group owner assignment across all environments
+
+#### Bug Fixes
+- Fixed incorrect search results caused by transliteration artifacts
+- Fixed OAuth2 token response format and JWT issuance for cloud clients
+- Fixed license retention permissions and settings issues
+- Fixed incorrect user search results by email in Simulator
+- Fixed Keycloak login display (username instead of email)
+- Fixed user permission transfer issue in the instance users list
+- Fixed AI avatar generation failure with text-containing photos
+- Fixed missing search indexing for newly registered users
+
 ## Chart 0.2.37 [Account 3.26.4] - 2026-05-22
 ### Application Versions
 - **account-frontend**: 3.26.2

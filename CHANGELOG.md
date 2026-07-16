@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.41 [Account 3.29.6] - 2026-07-16
+### Application Versions
+- **account-frontend**: 3.28.0
+- **account-auth**: 3.29.6
+- **account-workspace**: 3.29.6
+
+#### Bug Fixes
+- Hotfix for account-auth and account-workspace
+
 ## Chart 0.2.39 [Account 3.29.5] - 2026-07-07
 ### Application Versions
 - **account-frontend**: 3.28.0

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.42 [Account 3.31.0] - 2026-08-10
+### Application Versions
+- **account-frontend**: 3.31.0
+- **account-auth**: 3.31.0
+- **account-workspace**: 3.31.0
+
+#### New Features
+- Barrier limits: contract-driven daily/weekly/monthly caps on the Face API, with per-window usage and UTC-aligned resets (CGA-2513)
+- Barrier limits: default limits are synthesized from the license state-change quota when no contract is applied (CGA-2513)
+
+#### Enhancements
+- Barrier limits: dropped limits_version tracking — upsert is now an unconditional last-writer-wins overwrite (CGA-2513)
+- Config files untracked from the repository; live credentials replaced with environment-variable placeholders (SEC-1422)
+
+#### Bug Fixes
+- Barrier limits: default monthly quota now scales by the license M size instead of using raw units (CGA-2513)
+
 ## Chart 0.2.41 [Account 3.29.6] - 2026-07-16
 ### Application Versions
 - **account-frontend**: 3.28.0

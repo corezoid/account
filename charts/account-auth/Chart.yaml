@@ -2,8 +2,8 @@ apiVersion: v2
 name: account-auth
 description: A Helm chart for Account Authentication Service
 type: application
-version: 0.1.43
-appVersion: 3.31.0
+version: 0.1.44
+appVersion: 3.32.0
 keywords:
   - authentication
   - authorization

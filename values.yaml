@@ -149,6 +149,57 @@ global:
         minReplicas: 1
         maxReplicas: 10
         targetCPUUtilizationPercentage: 60
+      ## Avatar delivery from the shared volume (nginx). See README "Avatar delivery".
+      avatars:
+        cache:
+          ## @param Cache-Control max-age for URLs with a ?v=<N> cache-buster (served as immutable)
+          versioned_max_age: 31536000
+          ## @param Cache-Control max-age for avatar URLs without ?v=
+          unversioned_max_age: 86400
+          ## @param Cache-Control max-age for placeholders, fallbacks and 404s
+          placeholder_max_age: 120
+        ## Resized poster frames of animated avatars: /avatars/animation/<WxH>/<id>.jpg
+        poster:
+          enabled: true
+          ## internal loopback port of the resize server inside the nginx pod
+          port: 8090
+          ## local disk cache of resized posters (per pod)
+          cache_max_size: 200m
+          cache_valid: 30d
+          jpeg_quality: 80
+        ## CronJob that normalises the stored files to the delivery format (CGA-2529/2530):
+        ## mp4 -> 480px H.264 baseline, CRF 28, no audio, +faststart; poster .jpg -> real JPEG.
+        ## Runs files/avatars-normalize.sh in the account-workspace image (ffmpeg) on the shared
+        ## volume; originals are kept once under <volume>/.orig/. One-off backfill:
+        ##   kubectl -n <ns> create job --from=cronjob/<release>-avatars-normalize avatars-normalize-backfill
+        normalize:
+          enabled: false
+          schedule: "30 3 * * *"
+          suspend: false
+          ## log what would change, touch nothing
+          dry_run: false
+          max_width: 480
+          max_height: 270
+          ## CRF start / ceiling and the size the ladder aims for (bytes)
+          crf: 28
+          max_crf: 34
+          target_bytes: 102400
+          ## vertical position (0..1) of the 16:9 band cut out of taller clips
+          face_y: "0.36"
+          preset: medium
+          ## ffmpeg mjpeg quality for the poster conversion (2 = high .. 5 = low)
+          jpeg_q: 2
+          ## stop after N rewritten files (0 = all)
+          limit: 0
+          active_deadline_seconds: 14400
+          # image: hub.corezoid.com/public/account-workspace:<tag>   # default: the workspace image/tag of this release
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
     db:
       secret:
         ## true - secret will be created automaticaly with provided values
@@ -241,11 +292,25 @@ global:
       #   client: "dev-sa"
       #   sync: true
       #   separator: "/"
+      # litellm:
+      #   Must match a model_name exposed by the LiteLLM proxy
+      #   model: claude-sonnet-5
       # auth_providers:
+      #   ldap:
+      #     # ... existing LDAP connection keys ...
+      #     user_nick_entry: cn            # LDAP attribute for display name (optional)
+      #     user_email_entry: mail         # LDAP attribute for email (optional)
+      #     # Enables workspace/role/group sync at login; empty keeps the sync off.
+      #     # Set only once the maps are in place: roles not granted by any map are removed.
+      #     idp_entity_id: ""
+      #     connect_timeout_seconds: 10    # optional
+      #     read_timeout_seconds: 10       # optional (default 10)
+      #     fallback_hosts: []             # optional, tried in order (several domain controllers)
       #   saml:
       #     azure_saml:
       #       enabled: false
       #       name: Azure SAML
+      #       # allow_private_metadata_url: false  # allow http/private metadata URL (on-prem IdP); unset follows webhook.tls.insecure_skip_verify
       #       icon: https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico
       #       idp_metadata: https://login.microsoftonline.com/875b8ebc-11a0-419f-a6a3-cbb7bae2222f/federationmetadata/2007-06/federationmetadata.xml?appid=1dd17d8d-a978-412b-8976-fa922091e8
       #       idp_signs_metadata: false

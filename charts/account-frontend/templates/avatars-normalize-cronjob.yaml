@@ -1,0 +1,118 @@
+{{- /*
+Normalises the stored animated avatars to the delivery format (CGA-2529 / CGA-2530):
+mp4 -> 480px H.264 baseline +faststart without audio, poster .jpg -> real JPEG.
+Runs the script in files/avatars-normalize.sh on the shared avatars volume using the
+account-workspace image (it ships ffmpeg). Disabled unless
+global.account.frontend.avatars.normalize.enabled is true. One-off backfill:
+  kubectl -n <ns> create job --from=cronjob/<release>-avatars-normalize avatars-normalize-backfill
+*/ -}}
+{{- $account_data := .Values.global.account }}
+{{- $avatars := default (dict) $account_data.frontend.avatars }}
+{{- $norm := default (dict) $avatars.normalize }}
+{{- if $norm.enabled }}
+{{- $name := printf "%s-avatars-normalize" .Release.Name }}
+{{- $image := $norm.image | default (printf "%s/%s/account-workspace:%s" .Values.global.imageRegistry (.Values.global.repotype | default "public") ($account_data.workspace.tag | default .Chart.AppVersion)) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+data:
+  avatars-normalize.sh: |-
+{{ .Files.Get "files/avatars-normalize.sh" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "account.frontend.labels" . | nindent 4 }}
+spec:
+  schedule: {{ $norm.schedule | default "30 3 * * *" | quote }}
+  suspend: {{ $norm.suspend | default false }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: {{ $norm.active_deadline_seconds | default 14400 }}
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: avatars-normalize
+            release: {{ .Release.Name }}
+        spec:
+          restartPolicy: Never
+          {{- if .Values.global.imagePullSecrets }}
+          imagePullSecrets:
+          {{- range $pullSecret := .Values.global.imagePullSecrets }}
+            - name: {{ $pullSecret }}
+          {{- end }}
+          {{- end }}
+          containers:
+            - name: normalize
+              image: {{ $image | quote }}
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "/opt/avatars-normalize.sh"]
+              env:
+                - name: AVATARS_DIR
+                  value: /{{ $account_data.persistantVolumeClaimShareDir }}
+                - name: DRY_RUN
+                  value: {{ ternary "1" "0" (default false $norm.dry_run) | quote }}
+                - name: MAX_WIDTH
+                  value: {{ $norm.max_width | default 480 | quote }}
+                - name: MAX_HEIGHT
+                  value: {{ $norm.max_height | default 270 | quote }}
+                - name: CRF
+                  value: {{ $norm.crf | default 28 | quote }}
+                - name: MAX_CRF
+                  value: {{ $norm.max_crf | default 34 | quote }}
+                - name: TARGET_BYTES
+                  value: {{ $norm.target_bytes | default 102400 | quote }}
+                - name: FACE_Y
+                  value: {{ $norm.face_y | default "0.36" | quote }}
+                - name: PRESET
+                  value: {{ $norm.preset | default "medium" | quote }}
+                - name: JPEG_Q
+                  value: {{ $norm.jpeg_q | default 2 | quote }}
+                - name: LIMIT
+                  value: {{ $norm.limit | default 0 | quote }}
+              resources:
+                {{- toYaml ($norm.resources | default (dict "requests" (dict "cpu" "500m" "memory" "512Mi") "limits" (dict "cpu" "2" "memory" "1Gi"))) | nindent 16 }}
+              volumeMounts:
+                - name: script
+                  mountPath: /opt/avatars-normalize.sh
+                  subPath: avatars-normalize.sh
+                  readOnly: true
+                {{- /* the Deployment lists both PVCs on the same path; the first one (the claim, an EFS
+                     access point) is the one that actually holds the files — verified on dev and prod.
+                     A Job template must mount exactly one. */}}
+                - name: avatars
+                  mountPath: /{{ $account_data.persistantVolumeClaimShareDir }}
+          volumes:
+            - name: script
+              configMap:
+                name: {{ $name }}
+                defaultMode: 0555
+            - name: avatars
+              persistentVolumeClaim:
+                {{- if $account_data.persistantVolumeClaimCreate }}
+                claimName: {{ $account_data.persistantVolumeClaimName }}
+                {{- else }}
+                claimName: singlespace-efs-shared-pvc
+                {{- end }}
+          {{- with $account_data.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $account_data.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $account_data.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

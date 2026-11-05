@@ -2,6 +2,113 @@
 
 All notable changes to this project will be documented in this file.
 
+## Chart 0.2.48 [Account 3.32.0] - 2026-10-26
+### Application Versions
+- **account-frontend**: 3.32.1 (subchart 0.1.43)
+- **account-auth**: 3.32.0
+- **account-workspace**: 3.32.0
+
+#### Helm changes
+- **account-frontend 3.32.1** (AE-16578 / AE-16577): runtime image moved from `nginx:stable-alpine3.20` (frozen on nginx 1.26.3 / Alpine 3.20.6, EOL) to `nginx:stable-alpine3.24` (nginx 1.30.6 / Alpine 3.24.3) — fixes brotli-libs (CVE-2026-111497 / USN-8956-1), curl, libxml2 and OpenSSL findings in the 3.32.0 image (image verified: Alpine 3.24.4, brotli-libs 1.2.1-r0, curl 8.23.0, expat 2.10.0); dompurify 3.4.16 → 3.4.17 (Snyk XSS advisories, via posthog-js)
+- **CSP hardening** (account-frontend, from 0.2.47): removed the attacker-registrable `https://*.ngrok-free.app` origin, added `object-src 'none'` and `base-uri 'self'`; the policy is defined once (`account.frontend.csp.value`) for the server block, SPA/API and `/avatars/` locations — server/avatars keep the narrower `*.<env>.<domain>` scope
+- New optional config keys documented in `values.yaml` under `global.account.config` (passed through as-is, CGA-2550): `auth_providers.ldap.user_nick_entry`, `user_email_entry`, `idp_entity_id`, `connect_timeout_seconds`, `read_timeout_seconds`, `fallback_hosts`; `auth_providers.saml.<name>.allow_private_metadata_url`; `litellm.model`
+
+#### New Features
+- LDAP: read display name and email from the directory (`user_nick_entry` / `user_email_entry`); a first LDAP login reuses the account that owns that email or creates a new one; an entry without a usable email is refused
+- LDAP: sync workspaces, roles and groups from the directory at login via the SAML maps path, enabled by `idp_entity_id`; group DNs fold into slash paths; the sync never refuses the login
+- LDAP: provider exposed through the env IdP API (`config_ldap` in the listing, never the bind password; entry URL `/auth/ldap`)
+- LDAP: Active Directory support — connect/read timeouts (default 10s), `fallback_hosts`, bind failures on result code 49 no longer surface as internal errors; login length limit raised from 25 to 100
+- User search: search by login domain (`@sun.agency` / `sun.agency`), new partial index `logins_domain_idx` (CGA-2523)
+- License search: `GET /face/api/1/licenses?all=true&search=…` with user-search matching and relevance ranking (CGA-2524)
+- Users: new default `selection_stats` sort — frequently picked contacts float to the top of the picker (CGA-2519)
+- LiteLLM: AI model served from account config (`litellm.model`, default `claude-sonnet-5`); new teams get the `all-proxy-models` access group (CGA-2525)
+
+#### Enhancements
+- Barrier limits: monthly fallback window anchored to the license `CreatedAt` when `NextUpdateAt` is unset (CGA-2513)
+- Avatars: animated avatars encoded for delivery (480px H.264, CRF 28, `+faststart`, 400–800 KB → 60–80 KB), portrait clips cropped around the face, posters as JPEG q90 (CGA-2530)
+
+#### Bug Fixes
+- IdP role sync: system groups (All Workspace Users, Admin, Member, Guest) kept out of the SAML/LDAP group diff — fixes 400 on LDAP login and users dropped from All Workspace Users; map API answers 400 instead of 500
+- LDAP: attribute names matched case-insensitively; a null attribute no longer panics the login
+- Auth: every `token` cookie is tried, invalid/non-JWT tokens skipped instead of 500 (CGA-2537)
+- SAML: previously stored metadata kept when a metadata fetch fails (SEC-1820)
+- Workspace: `AlreadyExist` panic on concurrent first start of several pods fixed
+- Deps: `aws-sdk-go-v2` modules aligned — secrets could not be loaded at startup (`not found: ComputePayloadHash`)
+
+#### Security
+- OAuth2: authorization codes bound to the client's `redirect_uri`, code exchange authenticated (`client_secret`, PKCE S256), codes single use; open redirect via `//host` paths closed
+- OAuth2: full-scope cloud (Simulator) JWT minted only for codes issued to the cloud client
+- LDAP: a first LDAP login is never linked to the super admin account by email; login escaped in the search filter
+- SAML: SSRF protection for IdP metadata URLs (CWE-918) — https only, private/loopback/metadata IPs refused; per-IdP `allow_private_metadata_url` for on-prem IdPs (SEC-1820)
+- Deps: Go 1.24 → 1.26.9, govulncheck findings patched (SEC-1908)
+
+#### Upgrade Notes
+- Migration `000089_logins_domain_index` runs on startup
+- LiteLLM: teams provisioned before this release keep `models: ["default"]` — run `scripts/litellm_teams_all_proxy_models.sh` (`--apply` to write) after deploying and before dropping the `default` group from the proxy (CGA-2526)
+- LDAP: setting `idp_entity_id` makes every login reconcile roles against the directory and removes roles no map grants — set it only once the maps are in place
+
+## Chart 0.2.46 [Account 3.31.0] - 2026-09-11
+### Helm changes
+- Avatar normalisation: the 16:9 band cut out of taller clips is placed around the face (centre at
+  `FACE_Y` = 36 % of the height; a centre band showed the chin on Veo's 9:16 output), and the CRF is
+  raised in steps of 3 up to `MAX_CRF` (34) until the clip is under `TARGET_BYTES` (100 KB); clips that
+  stay above the target at `MAX_CRF` are marked in `<volume>/.orig/.state/` and not retried nightly.
+
+## Chart 0.2.45 [Account 3.31.0] - 2026-09-11
+### Helm changes
+- Avatar normalisation: clips taller than 16:9 (Veo's 480x854 portrait output that the generator failed
+  to crop — 356 of the 1032 prod files, 150–1400 KB even at 480 px wide) are centre-cropped to
+  `MAX_HEIGHT` (270); the meeting tile shows exactly that band (`object-fit: cover`). A rewrite starts
+  from the backed-up original when there is one, so re-running never stacks generation loss.
+
+## Chart 0.2.44 [Account 3.31.0] - 2026-09-11
+### Application Versions
+- **account-frontend**: 3.31.0 (subchart 0.1.39)
+- **account-auth**: 3.31.0
+- **account-workspace**: 3.31.0
+
+#### Helm changes
+- **Avatar normalisation CronJob** (CGA-2529 / CGA-2530): optional `global.account.frontend.avatars.normalize`
+  (disabled by default) runs `charts/account-frontend/files/avatars-normalize.sh` in the
+  account-workspace image on the shared avatars volume — re-encodes `animation/<id>.mp4` to
+  480px H.264 constrained baseline, CRF 28, no audio, `+faststart` (400–800 KB → 60–80 KB) and
+  converts PNG-bytes posters `animation/<id>.jpg` to real JPEG (~900 KB → ~40–60 KB). Idempotent,
+  originals kept once under `<volume>/.orig/`, atomic replace, `dry_run`/`limit` knobs.
+- `/avatars/` locations that answer a miss with the placeholder / 404 no longer log the expected
+  `open() failed` at error level (`log_not_found off`).
+
+## Chart 0.2.43 [Account 3.31.0] - 2026-09-11
+### Application Versions
+- **account-frontend**: 3.31.0 (subchart 0.1.38)
+- **account-auth**: 3.31.0
+- **account-workspace**: 3.31.0
+
+#### Helm changes (account-frontend nginx, `/avatars/`)
+- **Cache-Control for avatars** (CGA-2527): URLs with a `?v=<N>` cache-buster get
+  `public, max-age=31536000, immutable`; URLs without `?v=` get `public, max-age=86400`;
+  placeholders, fallbacks and 404s get `public, max-age=120`. Values under
+  `global.account.frontend.avatars.cache.*`. Previously only the `<WxH>` resize locations sent
+  `expires 1d`; everything else was un-cacheable.
+- **404 instead of a placeholder for unsupported avatar paths** (CGA-2528): anything under
+  `/avatars/` that is not a supported URL shape (e.g. `/avatars/animation/<id>.webm`,
+  `/avatars/workspaces/<ws>/52x52/animation/<id>.jpg`) now returns 404 (was 302 → 390-byte
+  placeholder or 415). A user who has no avatar still gets the placeholder, now as a direct 200
+  (`/static/avatar.jpg`, `/static/anonymous.jpg`, `/static/anonymous.mp4`) instead of a 302.
+  `/avatars/animation/<id>.mp4` for a user who has a photo but no animation returns 404 instead
+  of the JPEG body with a video URL.
+- **Resized poster frames** (CGA-2529): new `/avatars/animation/<WxH>/<id>.jpg?v=N`, cropped by
+  an internal loopback resize server and cached on the pod's local disk (`proxy_cache`, key includes
+  `?v=`). `X-Cache-Status` and `X-Avatar-Source` response headers expose cache state / fallbacks.
+  Values under `global.account.frontend.avatars.poster.*` (`enabled: true` by default).
+- Tightened the `/avatars/` regex locations (`<WxH>` must be digits, one path segment per part);
+  the old `(.+)x(.+)/(.+)` patterns mis-parsed nested paths and produced 415s.
+- Repeated per-location security/CORS/CSP headers moved into the named template
+  `account.frontend.avatars.headers` (rendered output identical).
+- JSON access log: `upstream_response_time` is now quoted — for static responses nginx renders it
+  empty, which produced invalid JSON (`"upstream_response_time": ,`) for every `/avatars/` line.
+- `develop` re-synced with `main` (the `/avatars/animation/<id>.mp4` location from 0.2.38 had only
+  landed on `main`).
+
 ## Chart 0.2.42 [Account 3.31.0] - 2026-08-10
 ### Application Versions
 - **account-frontend**: 3.31.0
